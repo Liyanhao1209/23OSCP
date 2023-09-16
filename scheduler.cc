@@ -58,6 +58,7 @@ Scheduler::ReadyToRun (Thread *thread)
     thread->setStatus(READY);
     //readyList->Append((void *)thread);
     /**
+     * Lab2
      * when a thread has static priority,we should find a proper location in the linear list for it by checking its priority
     */
     readyList->SortedInsert((void *)thread,thread->getPriority())
@@ -74,6 +75,17 @@ Scheduler::ReadyToRun (Thread *thread)
 Thread *
 Scheduler::FindNextToRun ()
 {
+    #ifdef AGING
+    /**
+     * Lab2/Aging
+     * in case of we switching the threads too frequently,
+     * we should calculate the duration between the last switch and the current switch
+     * if they are too close,just return NULL
+    */
+   if((stats->systemTicks-lastSwitchTick) < MinSwitchPace){
+        return NULL;
+   }
+    #endif
     return (Thread *)readyList->Remove();
 }
 
@@ -116,6 +128,14 @@ Scheduler::Run (Thread *nextThread)
     // in switch.s.  You may have to think
     // a bit to figure out what happens after this, both from the point
     // of view of the thread and from the perspective of the "outside world".
+    
+    /**
+     * Lab2/Aging
+     * update the lastSwitchTick before we switch the thread
+    */
+    #ifdef AGING
+    lastSwitchTick = stats->systemTicks;
+    #endif
 
     SWITCH(oldThread, nextThread);
     
@@ -148,4 +168,22 @@ Scheduler::Print()
 {
     printf("Ready list contents:\n");
     readyList->Mapcar((VoidFunctionPtr) ThreadPrint);
+}
+
+/**
+ * Lab2/Aging
+ * increase the priority of a specific thread
+*/
+void
+increPriority(Thread* thread){
+    thread->setPriority(thread->getPriority()+AGING_PACE);
+}
+
+/**
+ * Lab2/Aging
+ * flush the priority of all the ready threads
+*/
+void
+FlushPriority(){
+    readyList->MapCar((VoidFunctionPtr)increPriority);
 }

@@ -57,11 +57,17 @@
 #define StackSize	(sizeof(_int) * 1024)	// in words
 
 /**
+ * Lab2
  * constants about the static priority
 */
 #define HIGH_PRIORITY 0;
 #define LOW_PRIORITY 99;
 #define DEFAULT_PRIORITY 9;
+
+/**
+ * Lab2/Aging
+*/
+#define AGING_PACE -1;
 
 
 
@@ -112,6 +118,7 @@ class Thread {
     void Print() { printf("%s, ", name); }
 
     /**
+     * Lab2
      * setter and getter of priority 
      **/
     int getPriority(){return (priority);}
@@ -121,7 +128,8 @@ class Thread {
     // some of the private data for this class is listed above
 
     /**
-     * Lab1:threads schedule with static priority
+     * Lab2
+     * threads schedule with static priority
     */
     int priority;
     

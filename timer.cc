@@ -61,6 +61,13 @@ Timer::Timer(VoidFunctionPtr timerHandler, _int callArg, bool doRandom)
 void 
 Timer::TimerExpired() 
 {
+    /**
+     * Lab2/Aging
+     * flush the priority of all the ready threads
+    */
+    #ifdef AGING
+    scheduler->FlushPriority();
+    #endif
     // schedule the next timer device interrupt
     interrupt->Schedule(TimerHandler, (_int) this, TimeOfNextInterrupt(), 
 		TimerInt);

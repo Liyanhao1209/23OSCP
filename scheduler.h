@@ -13,6 +13,11 @@
 #include "list.h"
 #include "thread.h"
 
+/**
+ * Lab2
+ * in case of switching too frequently
+*/
+#define MinSwitchPace TimerTicks/4;
 // The following class defines the scheduler/dispatcher abstraction -- 
 // the data structures and operations needed to keep track of which 
 // thread is running, and which threads are ready but not running.
@@ -27,10 +32,34 @@ class Scheduler {
 					// list, if any, and return thread.
     void Run(Thread* nextThread);	// Cause nextThread to start running
     void Print();			// Print contents of ready list
-    
   private:
-    List *readyList;  		// queue of threads that are ready to run,
-				// but not running
+    List *readyList;  		// queue of threads that are ready to run,but not running
+
+#ifdef AGING
+  private:
+    /**
+     * Lab2/Aging
+     * increase the priority of a specific thread
+    */
+    void increPriority(Thread* thread);
+    /**
+     * Lab2/Aging
+     * maintain the last time of thread switching,to adjust the priority
+    */
+    int lastSwitchTick; 
+  public:
+    /**
+     * Lab2/Aging
+     * flush the priority of all the ready threads
+    */
+    void FlushPriority();
+    /**
+     * Lab2/Aging
+     * getter/setter of lastSwitchTick
+    */
+    int getLastSwitchTick();
+    int setLastSwitchTick();
+#endif
 };
 
 #endif // SCHEDULER_H

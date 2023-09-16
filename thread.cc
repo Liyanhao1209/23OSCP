@@ -35,6 +35,7 @@
 Thread::Thread(const char* threadName)
 {
     /**
+     * Lab2
      * set the default priority
      * change field "priority" by using the public setter exposed in thread.h
     */
@@ -197,6 +198,12 @@ void
 Thread::Yield ()
 {
     Thread *nextThread;
+    /**
+     * Lab2
+     * we initially suppose the current thread would be the loser
+     * when compete with the one we pick from the ready queue
+    */
+    Thread *loser = this;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
     
     ASSERT(this == currentThread);
@@ -205,13 +212,27 @@ Thread::Yield ()
     
 
     /**
-     * the time for current thread entering the ready queue is different from the demo's
-     * when a thread has a static priority,the thread with the highest priority should execute completely
-     * so when its time slice expired,we should push it into ready queue and then pull it back to continue its task
+     * Lab2/Aging
+     * when a running thread asked to relinquish the CPU,
+     * we should adjust its priority to a lower level
     */
-    scheduler->ReadyToRun(this);
+    #ifdef AGING
+    int changePriority = (stats->systemTicks-scheduler->getLastSwitchTick())/SystemTick;
+    this->setPriority(this->getPriority()+changePriority);
+    #endif
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {
+        /**
+         * Lab2 
+         * when we are scheduling the threads with priority(no matter static or dynamic ones)
+         * we should compare the one we select from the ready queue with current thread
+         * and pick one with higher priority to execute while the other should be put back into ready queue
+        */
+       if(this->getPriority()<nextThread->getPriority()){
+            loser = nextThread;
+            nextThread = this;
+       }
+       scheduler->ReadyToRun(loser);
 	    scheduler->Run(nextThread);
     }
     (void) interrupt->SetLevel(oldLevel);
