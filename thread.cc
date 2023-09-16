@@ -49,12 +49,15 @@ Thread::Thread(const char* threadName)
 #endif
 }
 
+void
 Thread::setPriority(int newPriority){
-    if(newPriority<HIGH_PRIORITY){
-        priority = HIGH_PRIORITY;
+    int hp = HIGH_PRIORITY;
+    int lp = LOW_PRIORITY;
+    if(newPriority<hp){
+        priority = hp;
     }
-    else if(newPriority>LOW_PRIORITY){
-        priority = LOW_PRIORITY;
+    else if(newPriority>lp){
+        priority = lp;
     }
     else{
         priority = newPriority;
@@ -208,7 +211,8 @@ Thread::Yield ()
     
     ASSERT(this == currentThread);
     
-    DEBUG('t', "Yielding thread \"%s\"\n", getName());
+    //DEBUG('t', "Yielding thread \"%s\"\n", getName());
+
     
 
     /**
@@ -222,13 +226,27 @@ Thread::Yield ()
     #endif
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {
+        DEBUG('t', "Next thread \"%s\"\n", nextThread->getName());
+        /**
+         * Lab2/NONPREEMPTIVE
+         * if we want to make sure a thread won't be kicked out of CPU before it's time slice expired
+         * we need to compare the system time and the expiring time
+        */
+       bool tsExpired = true;
+        #ifdef NONPREEMPTIVE
+            DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
+            if(interrupt->nextTimeSlice()->when>stats->systemTicks){
+                tsExpired = false;
+            }
+        #endif
         /**
          * Lab2 
          * when we are scheduling the threads with priority(no matter static or dynamic ones)
          * we should compare the one we select from the ready queue with current thread
          * and pick one with higher priority to execute while the other should be put back into ready queue
         */
-       if(this->getPriority()<nextThread->getPriority()){
+	DEBUG('t',"Time slice expired? %d\n",tsExpired);
+       if(!tsExpired||this->getPriority()<=nextThread->getPriority()){
             loser = nextThread;
             nextThread = this;
        }

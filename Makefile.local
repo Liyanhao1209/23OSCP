@@ -27,6 +27,10 @@ CCFILES = main.cc\
 
 INCPATH += -I- -I../lab2 -I../threads -I../machine
 
-DEFINES += -DTHREADS
+# =======================================(1)============================================
+# -DAGING
+# -DNONPREEMPTIVE
+DEFINES += -DTHREADS -DAGING -DNONPREEMPTIVE
+# =======================================(1)============================================
 
 endif # MAKEFILE_THREADS_LOCAL

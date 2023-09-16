@@ -17,7 +17,7 @@
  * Lab2
  * in case of switching too frequently
 */
-#define MinSwitchPace TimerTicks/4;
+#define MinSwitchPace TimerTicks;
 // The following class defines the scheduler/dispatcher abstraction -- 
 // the data structures and operations needed to keep track of which 
 // thread is running, and which threads are ready but not running.
@@ -39,11 +39,6 @@ class Scheduler {
   private:
     /**
      * Lab2/Aging
-     * increase the priority of a specific thread
-    */
-    void increPriority(Thread* thread);
-    /**
-     * Lab2/Aging
      * maintain the last time of thread switching,to adjust the priority
     */
     int lastSwitchTick; 
@@ -58,7 +53,7 @@ class Scheduler {
      * getter/setter of lastSwitchTick
     */
     int getLastSwitchTick();
-    int setLastSwitchTick();
+    void setLastSwitchTick(int newSwitchTick);
 #endif
 };
 

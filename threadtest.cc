@@ -45,7 +45,7 @@ SimpleThread(_int which)
 void
 ThreadTest()
 {
-    DEBUG('t', "Entering SimpleTest");
+    DEBUG('t', "Entering SimpleTest\n");
 
     Thread *t1 = new Thread("t1");
     Thread *t2 = new Thread("t2");

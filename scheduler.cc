@@ -53,7 +53,7 @@ Scheduler::~Scheduler()
 void
 Scheduler::ReadyToRun (Thread *thread)
 {
-    DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
+    //DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
 
     thread->setStatus(READY);
     //readyList->Append((void *)thread);
@@ -61,7 +61,7 @@ Scheduler::ReadyToRun (Thread *thread)
      * Lab2
      * when a thread has static priority,we should find a proper location in the linear list for it by checking its priority
     */
-    readyList->SortedInsert((void *)thread,thread->getPriority())
+    readyList->SortedInsert((void *)thread,thread->getPriority());
 }
 
 //----------------------------------------------------------------------
@@ -75,17 +75,20 @@ Scheduler::ReadyToRun (Thread *thread)
 Thread *
 Scheduler::FindNextToRun ()
 {
-    #ifdef AGING
+#ifdef AGING
     /**
      * Lab2/Aging
      * in case of we switching the threads too frequently,
      * we should calculate the duration between the last switch and the current switch
      * if they are too close,just return NULL
     */
-   if((stats->systemTicks-lastSwitchTick) < MinSwitchPace){
-        return NULL;
-   }
-    #endif
+//    int duration = stats->systemTicks - this->lastSwitchTick;
+//    int msp = MinSwitchPace;
+//    if(duration<msp){
+//         DEBUG('t',"Thread switch duration is %d ,too frequently,current systemTicks,current totalTicks=%d\n",duration,stats->systemTicks,stats->totalTicks);
+//         return NULL;
+//    }
+#endif
     return (Thread *)readyList->Remove();
 }
 
@@ -176,7 +179,13 @@ Scheduler::Print()
 */
 void
 increPriority(Thread* thread){
-    thread->setPriority(thread->getPriority()+AGING_PACE);
+    int changePri;
+    changePri = thread->getPriority()+AGING_PACE;
+    if (changePri<0)
+    {
+        changePri=0;
+    }
+    thread->setPriority(changePri);
 }
 
 /**
@@ -184,6 +193,21 @@ increPriority(Thread* thread){
  * flush the priority of all the ready threads
 */
 void
-FlushPriority(){
-    readyList->MapCar((VoidFunctionPtr)increPriority);
+Scheduler::FlushPriority(){
+    readyList->Mapcar((VoidFunctionPtr)increPriority);
+}
+
+/**
+ * Lab2/Aging
+ * getter/setter of lastSwitchTick
+*/
+int
+Scheduler::getLastSwitchTick()
+{
+    return this->lastSwitchTick;
+}
+
+void
+Scheduler::setLastSwitchTick(int newSwitchTick){
+    this->lastSwitchTick = newSwitchTick;
 }
