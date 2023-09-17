@@ -233,11 +233,23 @@ Thread::Yield ()
          * we need to compare the system time and the expiring time
         */
        bool tsExpired = true;
+       DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
         #ifdef NONPREEMPTIVE
-            DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
-            if(interrupt->nextTimeSlice()->when>stats->systemTicks){
+            /**
+             * Lab2/NONPREEMPTIVE
+             * since we are in a non preemptive environment
+             * there are infinite time slices for current thread 
+            */
+            tsExpired = false;
+        #else
+            /**
+             * Lab2/PREEMPTIVE
+             * if we are in a preemptive environment,we should check if the time slice expired after current tick
+             * if so,we should choose one with the higher priority
+            */
+           if(interrupt->nextTimeSlice()->when-SystemTick>stats->systemTicks){
                 tsExpired = false;
-            }
+           }
         #endif
         /**
          * Lab2 
