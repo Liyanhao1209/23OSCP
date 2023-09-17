@@ -86,7 +86,7 @@ Scheduler::FindNextToRun ()
 //    int msp = MinSwitchPace;
 //    if(duration<msp){
 //         DEBUG('t',"Thread switch duration is %d ,too frequently,current systemTicks,current totalTicks=%d\n",duration,stats->systemTicks,stats->totalTicks);
-//         return NULL;
+//         return currentThread;
 //    }
 #endif
     return (Thread *)readyList->Remove();
