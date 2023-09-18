@@ -131,4 +131,6 @@ class Interrupt {
 	IntStatus now);  		// simulated time
 };
 
+bool checkTsExpired();
+
 #endif // INTERRRUPT_H

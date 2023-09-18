@@ -121,8 +121,10 @@ class Thread {
      * Lab2
      * setter and getter of priority 
      **/
+    #ifdef PRIORITY
     int getPriority(){return (priority);}
     void setPriority(int newPriority);
+    #endif
 
   private:
     // some of the private data for this class is listed above
@@ -131,7 +133,9 @@ class Thread {
      * Lab2
      * threads schedule with static priority
     */
+    #ifdef PRIORITY
     int priority;
+    #endif
     
     int* stack; 	 		// Bottom of the stack 
 					// NULL if this is the main thread

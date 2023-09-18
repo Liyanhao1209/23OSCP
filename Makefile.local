@@ -27,10 +27,26 @@ CCFILES = main.cc\
 
 INCPATH += -I- -I../lab2 -I../threads -I../machine
 
-# =======================================(1)============================================
-# -DAGING
-# -DNONPREEMPTIVE
-DEFINES += -DTHREADS -DAGING -DNONPREEMPTIVE
-# =======================================(1)============================================
+# we should define 3 things
+# first,if we use time slice
+# second,which CPU scheduling strategy should we choose
+# including the details
+# third,if the CPU scheduling is preemptive
+
+
+# first
+# -DTIMESLICE decide if we should dispatch time slices for current thread 
+
+# second
+# 2.1
+# -DPRIORITY use priority strategy
+# -DAGING after you define we do the CPU scheduling with priority,you should point out whether we use static or dynamic policy.Default is static
+# 2.2
+# -DROUNDROBIN use round robin strategy
+
+#  third
+# -DPREEMPTIVE the default sheduling policy is NONPREEMPTIVE
+
+DEFINES +=  -DPRIORITY -DAGING  -DTIMESLICE
 
 endif # MAKEFILE_THREADS_LOCAL

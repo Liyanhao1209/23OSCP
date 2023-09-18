@@ -27,11 +27,19 @@ SimpleThread(_int which)
     int num;
     
     for (num = 0; num < 5; num++) {
+        #ifdef PRIORITY
 	    printf("*** thread %d looped %d times, priority=%d\n", 
             (int) which, 
             num,
             currentThread->getPriority()
         );
+        #endif
+        #ifndef PRIORITY
+        printf("*** thread %d looped %d times\n",
+            (int) which,
+            num
+        );
+        #endif
         currentThread->Yield();
     }
 }
@@ -51,9 +59,11 @@ ThreadTest()
     Thread *t2 = new Thread("t2");
     Thread *t3 = new Thread("t3");
 
+    #ifdef PRIORITY
     t1->setPriority(1);
     t2->setPriority(2);
     t3->setPriority(3);
+    #endif
 
     t1->Fork(SimpleThread, 1);
     t2->Fork(SimpleThread,2);

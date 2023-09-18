@@ -138,7 +138,7 @@ Initialize(int argc, char **argv)
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
     scheduler = new Scheduler();		// initialize the ready queue
-    #ifdef AGING
+    #ifdef TIMESLICE
         timer = new Timer(TimerInterruptHandler,0,false);
     #else
     if (randomYield)				// start the timer (if needed)

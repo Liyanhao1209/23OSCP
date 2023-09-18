@@ -21,6 +21,7 @@
 #include "copyright.h"
 #include "scheduler.h"
 #include "system.h"
+#include "interrupt.h"
 
 //----------------------------------------------------------------------
 // Scheduler::Scheduler
@@ -58,10 +59,40 @@ Scheduler::ReadyToRun (Thread *thread)
     thread->setStatus(READY);
     //readyList->Append((void *)thread);
     /**
-     * Lab2
+     * Lab2/PRIORITY
      * when a thread has static priority,we should find a proper location in the linear list for it by checking its priority
     */
+    #ifdef PRIORITY
     readyList->SortedInsert((void *)thread,thread->getPriority());
+    #endif
+
+    #ifdef ROUNDROBIN
+    /**
+     * Lab2/ROUNDROBIN
+     * if the time slice is not expired,go to the head of the list
+     * otherwise,the end of the list
+    */
+    readyList->Append((void*)thread);
+    #endif
+
+    #ifdef FCFS
+    readyList->Append((void*)thread);
+    #endif
+
+}
+
+/**
+ * Lab2/PRIORITY
+ * when we are not in a priority mode
+ * we pick a thread from the top of the list
+ * in case that a switch occur
+ * however,if the switch did not happen
+ * we send the thread back to the top of the list
+*/
+void
+Scheduler::BackToTop(Thread *thread){
+    thread->setStatus(READY);
+    readyList->Prepend((void*)thread);
 }
 
 //----------------------------------------------------------------------
@@ -133,16 +164,25 @@ Scheduler::Run (Thread *nextThread)
     // of view of the thread and from the perspective of the "outside world".
     
     /**
-     * Lab2/Aging
+     * Lab2/AGING
      * update the lastSwitchTick before we switch the thread
     */
     #ifdef AGING
     lastSwitchTick = stats->systemTicks;
     #endif
 
+    /**
+     * Lab2/TIMESLICE
+     * when we switch a thread to another one,we should flush the time slice
+    */
+    #ifdef TIMESLICE
+    if(oldThread!=nextThread)
+    interrupt->nextTimeSlice()->when +=TimerTicks;
+    #endif
+
     SWITCH(oldThread, nextThread);
     
-    DEBUG('t', "Now in thread \"%s\"\n", currentThread->getName());
+    //DEBUG('t', "Now in thread \"%s\"\n", currentThread->getName());
 
     // If the old thread gave up the processor because it was finishing,
     // we need to delete its carcass.  Note we cannot delete the thread

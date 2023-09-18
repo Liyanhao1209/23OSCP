@@ -335,6 +335,29 @@ Interrupt::CheckIfDue(bool advanceClock)
     return TRUE;
 }
 
+bool
+checkTsExpired(){
+    bool tsExpired = true;
+    #ifndef TIMESLICE
+    /**
+     * Lab2/TIMESLICE
+     * since we are in a non preemptive environment
+     * there are infinite time slices for current thread 
+    */
+    tsExpired = false;
+    #else
+    /**
+     * Lab2/TIMESLICE
+     * if we are in a preemptive environment,we should check if the time slice expired after current tick
+     * if so,we should choose one with the higher priority
+    */
+    if(interrupt->nextTimeSlice()->when-SystemTick>stats->systemTicks){
+        tsExpired = false;
+    }
+    #endif
+    return tsExpired;
+}
+
 //----------------------------------------------------------------------
 // PrintPending
 // 	Print information about an interrupt that is scheduled to occur.

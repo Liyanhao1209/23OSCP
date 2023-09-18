@@ -19,6 +19,7 @@
 #include "switch.h"
 #include "synch.h"
 #include "system.h"
+#include "interrupt.h"
 
 #define STACK_FENCEPOST 0xdeadbeef	// this is put at the top of the
 					// execution stack, for detecting 
@@ -35,11 +36,13 @@
 Thread::Thread(const char* threadName)
 {
     /**
-     * Lab2
+     * Lab2/PRIORITY
      * set the default priority
      * change field "priority" by using the public setter exposed in thread.h
     */
+    #ifdef PRIORITY
     priority = DEFAULT_PRIORITY;
+    #endif
     name = (char*)threadName;
     stackTop = NULL;
     stack = NULL;
@@ -49,6 +52,7 @@ Thread::Thread(const char* threadName)
 #endif
 }
 
+#ifdef PRIORITY
 void
 Thread::setPriority(int newPriority){
     int hp = HIGH_PRIORITY;
@@ -63,6 +67,7 @@ Thread::setPriority(int newPriority){
         priority = newPriority;
     }
 }
+#endif
 
 //----------------------------------------------------------------------
 // Thread::~Thread
@@ -213,8 +218,6 @@ Thread::Yield ()
     
     //DEBUG('t', "Yielding thread \"%s\"\n", getName());
 
-    
-
     /**
      * Lab2/Aging
      * when a running thread asked to relinquish the CPU,
@@ -232,39 +235,35 @@ Thread::Yield ()
          * if we want to make sure a thread won't be kicked out of CPU before it's time slice expired
          * we need to compare the system time and the expiring time
         */
-       bool tsExpired = true;
-       #ifdef AGING
+       bool tsExpired = checkTsExpired();
+       #ifdef TIMESLICE
         DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
        #endif
-        #ifdef NONPREEMPTIVE
-            /**
-             * Lab2/NONPREEMPTIVE
-             * since we are in a non preemptive environment
-             * there are infinite time slices for current thread 
-            */
-            tsExpired = false;
-        #else
-            /**
-             * Lab2/PREEMPTIVE
-             * if we are in a preemptive environment,we should check if the time slice expired after current tick
-             * if so,we should choose one with the higher priority
-            */
-           if(interrupt->nextTimeSlice()->when-SystemTick>stats->systemTicks){
-                tsExpired = false;
-           }
-        #endif
         /**
          * Lab2 
          * when we are scheduling the threads with priority(no matter static or dynamic ones)
          * we should compare the one we select from the ready queue with current thread
          * and pick one with higher priority to execute while the other should be put back into ready queue
         */
-	DEBUG('t',"Time slice expired? %d\n",tsExpired);
-       if(!tsExpired||this->getPriority()<=nextThread->getPriority()){
+	    DEBUG('t',"Time slice expired? %d\n",tsExpired);
+        bool priorityCmp = false;
+        #ifdef PRIORITY
+        priorityCmp = this->getPriority()<nextThread->getPriority();
+        #endif
+       if(!tsExpired||priorityCmp){
             loser = nextThread;
             nextThread = this;
        }
-       scheduler->ReadyToRun(loser);
+        #ifdef PRIORITY
+        scheduler->ReadyToRun(loser);
+        #endif
+        #ifndef PRIORITY
+        if(!tsExpired){
+            scheduler->BackToTop(loser);
+        }else{
+            scheduler->ReadyToRun(loser);
+        }
+        #endif
 	    scheduler->Run(nextThread);
     }
     (void) interrupt->SetLevel(oldLevel);
