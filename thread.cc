@@ -233,7 +233,9 @@ Thread::Yield ()
          * we need to compare the system time and the expiring time
         */
        bool tsExpired = true;
-       DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
+       #ifdef AGING
+        DEBUG('t',"Next time slice is %d,current time is %d\n",interrupt->nextTimeSlice()->when,stats->systemTicks);
+       #endif
         #ifdef NONPREEMPTIVE
             /**
              * Lab2/NONPREEMPTIVE

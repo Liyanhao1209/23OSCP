@@ -173,6 +173,7 @@ Scheduler::Print()
     readyList->Mapcar((VoidFunctionPtr) ThreadPrint);
 }
 
+#ifdef AGING
 /**
  * Lab2/Aging
  * increase the priority of a specific thread
@@ -211,3 +212,4 @@ void
 Scheduler::setLastSwitchTick(int newSwitchTick){
     this->lastSwitchTick = newSwitchTick;
 }
+#endif

@@ -239,5 +239,8 @@ List::SortedRemove(int *keyPtr)
 
 void *
 List::top(){
+    if(first==NULL){
+        return NULL;
+    }
     return first->item;
 }
