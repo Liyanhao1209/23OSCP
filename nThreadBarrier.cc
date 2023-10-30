@@ -10,7 +10,7 @@
 
 #define N_THREADS  10    // the number of threads
 #define N_TICKS    1000  // the number of ticks to advance simulated time
-#define MAX_NAME  16 // 名称的最大长度
+#define MAX_NAME  16 // max name length
 
 class Barrier {
 public:
@@ -73,20 +73,20 @@ Thread* threads[N_THREADS];
 char threads_name[N_THREADS][MAX_NAME];
 Semaphore *advance;
 
-//void MakeTicks(int n)  // advance n ticks of simulated time
-//{
-//    //use the IntOff and IntOn to advance the clock
-//    advance = new Semaphore("advance",1);
-//    for(int i=n;i>0;i--){
-//        advance->P();
-//        advance->V();
-//    }
-//}
+void MakeTicks(int n)  // advance n ticks of simulated time
+{
+    //use the IntOff and IntOn to advance the clock
+    advance = new Semaphore("advance",1);
+    for(int i=0;i<n;i++){
+        advance->P();
+        advance->V();
+    }
+}
 
 
 void BarThread(_int which)
 {
-    //MakeTicks(N_TICKS);
+    MakeTicks(N_TICKS);
     printf("Thread [%d] rendezvous\n", which);
     barrier->Arrive(which);
 }
