@@ -196,30 +196,46 @@ Condition::~Condition()
 
 //----------------------------------------------------------------------
 // Condition::Wait
+//
 //      Release the lock, relinquish the CPU until signaled, then
 //      re-acquire the lock.
+//
+//      Pre-conditions:  currentThread is holding the lock; threads in
+//      the queue are waiting on the same lock.
 //----------------------------------------------------------------------
-void Condition::Wait()
+void Condition::Wait(Lock* conditionLock) 
 { 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    ASSERT(conditionLock->isHeldByCurrentThread());  // check pre-condition
+    if(queue->IsEmpty()) {
+	    lock = conditionLock;  // helps to enforce pre-condition
+    } 
+    ASSERT(lock == conditionLock); // another pre-condition
     queue->Append(currentThread);  // add this thread to the waiting list
+    conditionLock->Release();      // release the lock
     currentThread->Sleep();        // goto sleep
+    conditionLock->Acquire();      // awaken: re-acquire the lock
     (void) interrupt->SetLevel(oldLevel);
 }
 
 //----------------------------------------------------------------------
 // Condition::Signal
 //      Wake up a thread, if there are any waiting on the condition.
+//   
+//      Pre-conditions:  currentThread is holding the lock; threads in
+//      the queue are waiting on the same lock.
 //----------------------------------------------------------------------
-void Condition::Signal()
+void Condition::Signal(Lock* conditionLock) 
 { 
     Thread *nextThread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    ASSERT(conditionLock->isHeldByCurrentThread());
     if(!queue->IsEmpty()) {
-        nextThread = (Thread *)queue->Remove();
-        scheduler->ReadyToRun(nextThread);      // wake up the thread
+	ASSERT(lock == conditionLock);
+	nextThread = (Thread *)queue->Remove();
+	scheduler->ReadyToRun(nextThread);      // wake up the thread
     } 
     (void) interrupt->SetLevel(oldLevel);
 }
@@ -231,15 +247,17 @@ void Condition::Signal()
 //      Pre-conditions:  currentThread is holding the lock; threads in
 //      the queue are waiting on the same lock.
 //----------------------------------------------------------------------
-void Condition::Broadcast()
+void Condition::Broadcast(Lock* conditionLock) 
 { 
     Thread *nextThread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    ASSERT(conditionLock->isHeldByCurrentThread());
     if(!queue->IsEmpty()) {
-        while( (nextThread = (Thread *)queue->Remove()) ) {
-            scheduler->ReadyToRun(nextThread);  // wake up the thread
-        }
+	ASSERT(lock == conditionLock);
+	while( (nextThread = (Thread *)queue->Remove()) ) {
+	    scheduler->ReadyToRun(nextThread);  // wake up the thread
+	}
     } 
     (void) interrupt->SetLevel(oldLevel);
 }

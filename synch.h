@@ -123,16 +123,18 @@ class Condition {
     ~Condition();			// deallocate the condition
     char* getName() { return name; }
     
-    void Wait(); 	// these are the 3 operations on
+    void Wait(Lock *conditionLock); 	// these are the 3 operations on 
 					// condition variables; releasing the 
 					// lock and going to sleep are 
 					// *atomic* in Wait()
-    void Signal();   // conditionLock must be held by
-    void Broadcast();// the currentThread for all of
+    void Signal(Lock *conditionLock);   // conditionLock must be held by
+    void Broadcast(Lock *conditionLock);// the currentThread for all of 
 					// these operations
 
   private:
     char* name;
     List* queue;  // threads waiting on the condition
+    Lock* lock;   // debugging aid:  used to check correctness of
+                  // arguments to Wait, Signal and Broadcast
 };
 #endif // SYNCH_H
