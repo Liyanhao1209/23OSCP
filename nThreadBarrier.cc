@@ -54,12 +54,12 @@ void Barrier::Arrive(int index) {
     mutex->Acquire();
     count = count +1;
     printf("Thread [%d] has arrived\n",index);
-    mutex->Release();
-
     if(count==n){
         turnstile->V();
         printf("Thread [%d] is the last\n", index);
     }
+    mutex->Release();
+
     turnstile->P();
     turnstile->V();
 
