@@ -180,6 +180,20 @@ Thread::Finish ()
     DEBUG('t', "Finishing thread \"%s\"\n", getName());
     
     threadToBeDestroyed = currentThread;
+
+    /**
+     * Lab3/TIMESLICE
+     * When a thread has completed its mission and asked for invoking of Finish
+     * We should ensure that the time slice is reallocated
+     * otherwise,the next thread would have the rest of the time slice prepared for the dying thread!
+     */
+    #ifdef TIMESLICE
+        DEBUG('t',"current sys tick = %d\n",stats->systemTicks);
+        interrupt->nextTimeSlice()->when = stats-> systemTicks + timer->TimeOfNextInterrupt() ;
+        interrupt->getPendingList()->top()->setKey(interrupt->nextTimeSlice()->when);
+        DEBUG('t',"next time slice =  %d\n",interrupt->nextTimeSlice()->when);
+    #endif
+
     Sleep();					// invokes SWITCH
     // not reached
 }

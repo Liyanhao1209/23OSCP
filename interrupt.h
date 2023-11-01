@@ -112,6 +112,7 @@ class Interrupt {
     
     void OneTick();       		// Advance simulated time
     PendingInterrupt *nextTimeSlice();
+    List* getPendingList();
 
   private:
     IntStatus level;		// are interrupts enabled or disabled?

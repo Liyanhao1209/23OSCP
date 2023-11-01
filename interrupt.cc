@@ -299,6 +299,7 @@ Interrupt::CheckIfDue(bool advanceClock)
 	DumpState();
     PendingInterrupt *toOccur = 
 		(PendingInterrupt *)pending->SortedRemove(&when);
+    DEBUG('t',"when = %d\n",when);
 
     if (toOccur == NULL)		// no pending interrupts
 	return FALSE;			
@@ -393,5 +394,10 @@ Interrupt::DumpState()
 
 PendingInterrupt *
 Interrupt::nextTimeSlice(){
-   return (PendingInterrupt*)pending->top();
+   return (PendingInterrupt*)pending->top()->getItem();
+}
+
+List *
+Interrupt::getPendingList() {
+    return pending;
 }

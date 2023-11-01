@@ -34,6 +34,14 @@ ListElement::ListElement(void *itemPtr, int sortKey)
      next = NULL;	// assume we'll put it at the end of the list 
 }
 
+void* ListElement::getItem() {
+    return item;
+}
+
+void ListElement::setKey(int newKey) {
+    key = newKey;
+}
+
 //----------------------------------------------------------------------
 // List::List
 //	Initialize a list, empty to start with.
@@ -237,10 +245,10 @@ List::SortedRemove(int *keyPtr)
     return thing;
 }
 
-void *
+ListElement*
 List::top(){
     if(first==NULL){
         return NULL;
     }
-    return first->item;
+    return first;
 }

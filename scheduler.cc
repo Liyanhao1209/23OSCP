@@ -176,8 +176,8 @@ Scheduler::Run (Thread *nextThread)
      * when we switch a thread to another one,we should flush the time slice
     */
     #ifdef TIMESLICE
-    if(oldThread!=nextThread)
-    interrupt->nextTimeSlice()->when +=TimerTicks;
+//    if(oldThread!=nextThread)
+//    interrupt->nextTimeSlice()->when +=TimerTicks;
     #endif
 
     SWITCH(oldThread, nextThread);
