@@ -279,6 +279,9 @@ Thread::Yield ()
         }
         #endif
 	    scheduler->Run(nextThread);
+    }else{
+        DEBUG('t', "Switching from thread \"%s\" to thread \"%s\"\n",
+              currentThread->getName(),currentThread->getName());
     }
     (void) interrupt->SetLevel(oldLevel);
 }

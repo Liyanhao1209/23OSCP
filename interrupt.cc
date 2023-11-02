@@ -299,7 +299,7 @@ Interrupt::CheckIfDue(bool advanceClock)
 	DumpState();
     PendingInterrupt *toOccur = 
 		(PendingInterrupt *)pending->SortedRemove(&when);
-    DEBUG('t',"when = %d\n",when);
+    //DEBUG('t',"when = %d\n",when);
 
     if (toOccur == NULL)		// no pending interrupts
 	return FALSE;			

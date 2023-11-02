@@ -40,7 +40,9 @@ SimpleThread(_int which)
             num
         );
         #endif
+        if(num!=4)
         currentThread->Yield();
+        else currentThread->Finish();
     }
 }
 
