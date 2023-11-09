@@ -74,6 +74,11 @@ Copy(char *from, char *to)
     stat(from, &buf);
     const long int time = buf.st_mtime;
 
+
+    time_t ts = time;
+    char *timeFormat = ctime(&ts);
+    timeFormat[strlen(timeFormat) - 1] = '\0';
+    DEBUG('f',"origin file timestamp: %s\n",timeFormat);
     openFile->getFileHeader()->setLastUpdateTime(time);
     ASSERT(fileSystem->querySectorNoByFileName(to)!=-1);
     openFile->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
