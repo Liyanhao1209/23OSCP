@@ -247,7 +247,7 @@ OpenFile::Length()
  */
 void
 OpenFile::WriteHeaderBack(int sectorNo) {
-    hdr->setLastUpdateTime((int)time(NULL));
+    //hdr->setLastUpdateTime((int)time(NULL));
     //this means the caller should pass the correct sector number of the file header on disk
     this->hdr->WriteBack(sectorNo);
 }

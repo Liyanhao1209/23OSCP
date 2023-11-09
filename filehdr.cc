@@ -143,10 +143,36 @@ FileHeader::FileLength()
 
 /**
  * Lab4:filesys extension
+ * since the length of nachos file is changeable
+ * the bit map only allocate the initial size of sectors to
+ * the file
+ * thus we should change the bit map when we're writing some data into the file
  */
 void
 FileHeader::updateFileLength(int newFileLength) {
+    //calculate current used sectors
+    int curSectors = divRoundUp(newFileLength,SectorSize);
+    int oldSectors = calculateNumSectors();
+    if(curSectors>oldSectors){
+
+        int bitmapSecNo = 0;
+        // fetch the bit map from disk
+        OpenFile* bitmap = new OpenFile(bitmapSecNo);
+        // load the bitmap to mem
+        BitMap* bm = new BitMap(NumSectors);
+        bm->FetchFrom(bitmap);
+
+        // update the bit map
+        for(int i=oldSectors;i<curSectors;i++){
+            dataSectors[i] = bm->Find();
+        }
+
+        bm->WriteBack(bitmap);
+        delete bm;
+        delete bitmap;
+    }
     this->numBytes = newFileLength;
+
     //this->numSectors = divRoundUp(newFileLength, SectorSize);
 }
 

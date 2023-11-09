@@ -197,6 +197,7 @@ Append(char *from, char *to, int half)
     }
 
 //  Write the inode back to the disk, because we have changed it
+    ASSERT(fileSystem->querySectorNoByFileName(to)!=-1);
   openFile->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
   printf("inodes have been written back\n");
     
@@ -299,6 +300,7 @@ NAppend(char *from, char *to)
 
 
 //  Write the inode back to the disk, because we have changed it
+    ASSERT(fileSystem->querySectorNoByFileName(to)!=-1);
   openFileTo->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
   printf("inodes have been written back\n");
     
