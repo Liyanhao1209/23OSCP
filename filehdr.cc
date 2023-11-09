@@ -26,7 +26,7 @@
 
 #include "system.h"
 #include "filehdr.h"
-#include "time.h"
+#include <time.h>
 #include <string.h>
 
 //----------------------------------------------------------------------

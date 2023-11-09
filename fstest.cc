@@ -67,15 +67,16 @@ Copy(char *from, char *to)
 
     /**
      * Lab4:filesys extension
-     * if the dest file's latest update time should be the same as
+     * the dest file's latest update time should be the same as
      * the src file's
      */
     struct stat buf;
     stat(from, &buf);
     const long int time = buf.st_mtime;
 
-    openFile->getFileHeader()->setTime(time);
-    openFile->WriteBack();
+    openFile->getFileHeader()->setLastUpdateTime(time);
+    ASSERT(fileSystem->querySectorNoByFileName(to)!=-1);
+    openFile->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
     
 // Copy the data in TransferSize chunks
     buffer = new char[TransferSize];
@@ -93,11 +94,11 @@ Copy(char *from, char *to)
 // Append
 // 	Append the contents of the UNIX file "from" to the Nachos file "to".
 //        if  "half" is non-zero, start at the middle of file "to" to
-//        appending the contents of "from"; Otherwise, do real appneding
+//        appending the contents of "from"; Otherwise, do real appending
 //        after the end of file "to".
 //
 //      If Nachos file "to" does not exist, create the nachos file 
-//         "to" with lengh 0, then append the contents of UNIX file 
+//         "to" with length 0, then append the contents of UNIX file
 //         "from" to the end of it.
 //----------------------------------------------------------------------
 
@@ -111,6 +112,17 @@ Append(char *from, char *to, int half)
 
 //  start position for appending
     int start;
+
+    /**
+     * Lab4:filesys extension
+     * According to the guidance readme
+     * when the dest file does not exist
+     * the creating time of the dest file should
+     * be the same as the src file's
+     * Otherwise,update the timestamp with current time
+     * So we should set a flag to determine which time to assign
+     */
+     bool flag = true;
 
 // Open UNIX file
     if ((fp = fopen(from, "r")) == NULL) {	 
@@ -132,6 +144,7 @@ Append(char *from, char *to, int half)
     if ( (openFile = fileSystem->Open(to)) == NULL)
     {
 	// file "to" does not exits, then create one
+        flag = false;
 	if (!fileSystem->Create(to, 0)) 
 	{
 	    printf("Append: couldn't create the file %s to append\n", to);
@@ -162,9 +175,25 @@ Append(char *from, char *to, int half)
     }
     delete [] buffer;
 
+    /**
+     * Lab4:filesys extension
+     * update the file header timestamp and
+     * write it back to disk
+     */
+    if (!flag) {
+        struct stat buf;
+        stat(from, &buf);
+        const long int time = buf.st_mtime;
+        openFile->getFileHeader()->setLastUpdateTime(time);
+    } else {
+        time_t ts;
+        time(&ts);
+        openFile->getFileHeader()->setLastUpdateTime((int) ts);
+    }
+
 //  Write the inode back to the disk, because we have changed it
-//  openFile->WriteBack();
-//  printf("inodes have been written back\n");
+  openFile->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
+  printf("inodes have been written back\n");
     
 // Close the UNIX and the Nachos files
     delete openFile;
@@ -193,6 +222,8 @@ NAppend(char *from, char *to)
     //  start position for appending
     int start;
 
+    bool flag = true;
+
     if (!strncmp(from, to, FileNameMaxLen))
     {
 	//  "from" should be the same as "to"
@@ -217,6 +248,7 @@ NAppend(char *from, char *to)
     if ( (openFileTo = fileSystem->Open(to)) == NULL)
     {
 	// file "to" does not exits, then create one
+        flag = false;
 	if (!fileSystem->Create(to, 0)) 
 	{
 	    printf("Append: couldn't create the file %s to append\n", to);
@@ -247,9 +279,23 @@ NAppend(char *from, char *to)
     }
     delete [] buffer;
 
+    /**
+     * Lab4:filesys extension
+     * the same logic as Append
+     */
+     if(!flag){
+         openFileTo->getFileHeader()->setLastUpdateTime(openFileFrom->getFileHeader()->getLastUpdateTime());
+     }
+     else{
+         time_t ts;
+         time(&ts);
+         openFileTo->getFileHeader()->setLastUpdateTime((int) ts);
+     }
+
+
 //  Write the inode back to the disk, because we have changed it
-//  openFileTo->WriteBack();
-//  printf("inodes have been written back\n");
+  openFileTo->WriteHeaderBack(fileSystem->querySectorNoByFileName(to));
+  printf("inodes have been written back\n");
     
 // Close both Nachos files
     delete openFileTo;
