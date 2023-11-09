@@ -37,6 +37,7 @@ OpenFile::OpenFile(int sector)
      */
     fileHeaderSectorNo = sector;
     seekPosition = 0;
+    latestLength = hdr->FileLength();
 }
 
 //----------------------------------------------------------------------
@@ -60,8 +61,10 @@ OpenFile::~OpenFile()
          // time(NULL) returns the passed seconds since UTC 1970.1.1:00:00:00
          // the type of return value is time_t,which is the same size of type int
          // so the forcing cast is reasonable
-         hdr->setLastUpdateTime((int)time(NULL));
-         hdr->WriteBack(fileHeaderSectorNo);
+         if(this->latestLength!=0){
+             hdr->setLastUpdateTime((int)time(NULL));
+             hdr->WriteBack(fileHeaderSectorNo);
+         }
      }
     delete hdr;
 }
