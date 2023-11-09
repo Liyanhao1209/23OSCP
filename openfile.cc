@@ -63,8 +63,8 @@ OpenFile::~OpenFile()
          // so the forcing cast is reasonable
          if(this->latestLength!=0){
              hdr->setLastUpdateTime((int)time(NULL));
-             hdr->WriteBack(fileHeaderSectorNo);
          }
+         hdr->WriteBack(fileHeaderSectorNo);
      }
     delete hdr;
 }
