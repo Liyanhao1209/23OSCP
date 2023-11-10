@@ -340,12 +340,17 @@ bool
 checkTsExpired(){
     bool tsExpired = true;
     #ifndef TIMESLICE
+    #ifdef PREEMPTIVE
+    tsExpired = true;
+    #else
+    tsExpired = false;
+    #endif
     /**
      * Lab2/TIMESLICE
      * since we are in a non preemptive environment
      * there are infinite time slices for current thread 
     */
-    tsExpired = false;
+    //tsExpired = false;
     #else
     /**
      * Lab2/TIMESLICE
