@@ -129,9 +129,10 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isO
         // important to free the mem space
         delete fHdr;
     }
+    int allocatedNum = (numSectors-startNo)>0?(numSectors-startNo):0;
     // recursively allocate the next file header
     // ought to start at 0!
-    AllocateEachFHdr(bitMap,0,restSectors-numSectors,isOrigin,nextFHdrSectorNo);
+    AllocateEachFHdr(bitMap,0,restSectors-allocatedNum,isOrigin,nextFHdrSectorNo);
 }
 
 //----------------------------------------------------------------------
@@ -254,7 +255,7 @@ FileHeader::updateFileLength(int newFileLength) {
         }
 
         // where to start append
-        int startNo = fHdr->calculateNumSectors()+1;
+        int startNo = fHdr->calculateNumSectors();
 
         int bitmapSecNo = 0;
         // fetch the bit map from disk
@@ -349,7 +350,6 @@ FileHeader::getDataSectors() {
 
 void
 FileHeader::setDataSectors(BitMap* bitMap,int startNo,int numSectors) {
-    ASSERT(startNo<=numSectors);
     for(int i=startNo;i<numSectors;i++){
         dataSectors[i] = bitMap->Find();
     }
