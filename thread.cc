@@ -238,8 +238,8 @@ Thread::Yield ()
      * we should adjust its priority to a lower level
     */
     #ifdef AGING
-    int changePriority = (stats->systemTicks-scheduler->getLastSwitchTick())/SystemTick;
-    this->setPriority(this->getPriority()+changePriority);
+//    int changePriority = (stats->systemTicks-scheduler->getLastSwitchTick())/SystemTick;
+//    this->setPriority(this->getPriority()+changePriority);
     #endif
     nextThread = scheduler->FindNextToRun();
     if (nextThread != NULL) {

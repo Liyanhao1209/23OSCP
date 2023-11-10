@@ -107,6 +107,8 @@ Thread *
 Scheduler::FindNextToRun ()
 {
 #ifdef AGING
+    int changePriority = (stats->systemTicks-lastSwitchTick)/SystemTick;
+    currentThread->setPriority(currentThread->getPriority()+changePriority);
     /**
      * Lab2/Aging
      * in case of we switching the threads too frequently,

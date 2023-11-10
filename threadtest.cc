@@ -40,8 +40,13 @@ SimpleThread(_int which)
             num
         );
         #endif
-        if(num!=4)
-        currentThread->Yield();
+        if(num!=4){
+            currentThread->Yield();
+            //interrupt->SetLevel(IntOff);
+            //interrupt->SetLevel(IntOn);
+        }
+
+
         else currentThread->Finish();
     }
 }
