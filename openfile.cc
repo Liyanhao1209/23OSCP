@@ -179,7 +179,12 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
     int newFileLength = position+numBytes;
 
 //    if ((numBytes <= 0) || (position >= fileLength))  // For original Nachos file system
-    if ((newFileLength>MaxFileSize) || (numBytes <= 0) || (position > fileLength))  // For lab4 ...
+    /**
+     * Lab5:filesys extension
+     * the maxFileSize has been changed since we have second level file header index structure
+     * We may make a new max file size limit instead
+     */
+    if ((numBytes <= 0) || (position > fileLength))  // For lab5 ...
 	return 0;				// check request
 
     /**

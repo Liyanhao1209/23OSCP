@@ -94,9 +94,9 @@ class FileHeader {
     int indirect;
     int dataSectors[NumDirect];		// Disk sector numbers for each data block in the file
 
-    void AllocateEachFHdr(BitMap *bitMap,int restSectors,bool isOrigin,int curSectorNo);
+    void AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isOrigin,int curSectorNo);
 
-    void DeallocateEachFHdr(BitMap *bitMap,bool isOrigin,int curSectorNo);
+
 
 };
 
