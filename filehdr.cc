@@ -295,20 +295,44 @@ FileHeader::Print()
     timeFormat[strlen(timeFormat) - 1] = '\0';
     printf("FileHeader contents.  File size: %d.  File modification time: %s.  "
            "File blocks:\n", numBytes, timeFormat);
-    int numSectors = calculateNumSectors();
-    for (i = 0; i < numSectors; i++)
-	printf("%d ", dataSectors[i]);
+    /**
+     * Lab5:filesys extension
+     * recursively print all file blocks
+     */
+     FileHeader* fHdr = new FileHeader;
+     copyFHdr(fHdr);
+     int numSectors;
+     while(fHdr->getIndirect()!=-1){
+         numSectors = fHdr->calculateNumSectors();
+         int* ds = fHdr->getDataSectors();
+         for(i = 0;i<numSectors;i++){
+             printf("%d ", ds[i]);
+         }
+         fHdr->FetchFrom(fHdr->getIndirect());
+     }
     printf("\nFile contents:\n");
-    for (i = k = 0; i < numSectors; i++) {
-	synchDisk->ReadSector(dataSectors[i], data);
-        for (j = 0; (j < SectorSize) && (k < numBytes); j++, k++) {
-	    if ('\040' <= data[j] && data[j] <= '\176')   // isprint(data[j])
-		printf("%c", data[j]);
-            else
-		printf("\\%x", (unsigned char)data[j]);
-	}
-        printf("\n"); 
+     /**
+      * Lab5:filesys extension
+      * recursively print all file data
+      */
+    copyFHdr(fHdr);
+    while(fHdr->getIndirect()!=-1){
+        int* ds = fHdr->getDataSectors();
+        numSectors = fHdr->calculateNumSectors();
+        for (i = k = 0; i < numSectors; i++) {
+            synchDisk->ReadSector(ds[i], data);
+            for (j = 0; (j < SectorSize) && (k < fHdr->FileLength()); j++, k++) {
+                if ('\040' <= data[j] && data[j] <= '\176'){
+                    printf("%c", data[j]);
+                }else{
+                    printf("\\%x", (unsigned char)data[j]);
+                }
+            }
+            printf("\n");
+        }
+        fHdr->FetchFrom(fHdr->getIndirect());
     }
+    delete fHdr;
     delete [] data;
 }
 
@@ -358,4 +382,18 @@ FileHeader::setDataSectors(BitMap* bitMap,int startNo,int numSectors) {
 void
 FileHeader::setFileLength(int fl) {
     numBytes = fl;
+}
+
+void
+FileHeader::copyDataSectors(int *src,int numSectors) {
+    for(int i=0;i<numSectors;i++){
+        dataSectors[i] = src[i];
+    }
+}
+
+void
+FileHeader::copyFHdr(FileHeader *dest) {
+    dest->setIndirect(indirect);
+    dest->setFileLength(numBytes);
+    dest->copyDataSectors(dataSectors,calculateNumSectors());
 }

@@ -80,6 +80,12 @@ class FileHeader {
 
     void setFileLength(int fl);
 
+    /**
+     * Lab5:filesys extension
+     * copy file header to another file header node to iterate the whole file
+     */
+     void copyFHdr(FileHeader* dest);
+
   private:
     int numBytes;			// Number of bytes in the file
     /**
@@ -96,8 +102,7 @@ class FileHeader {
 
     void AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isOrigin,int curSectorNo);
 
-
-
+    void copyDataSectors(int *src,int numSectors);
 };
 
 #endif // FILEHDR_H
