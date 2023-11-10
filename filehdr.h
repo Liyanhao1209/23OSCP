@@ -76,7 +76,7 @@ class FileHeader {
 
     int* getDataSectors();
 
-    void setDataSectors(BitMap* bitMap,int numSectors);
+    void setDataSectors(BitMap* bitMap,int startNo,int numSectors);
 
     void setFileLength(int fl);
 

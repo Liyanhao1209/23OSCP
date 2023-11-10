@@ -268,7 +268,7 @@ FileHeader::updateFileLength(int newFileLength) {
         int nextFHdrNo = bm->Find();
         ASSERT(nextFHdrNo!=-1);
         // for the last file header,make changes to the bit map
-        AllocateEachFHdr(bitmap,startNo,curSectors,fHdr->getIndirect()==indirect,nextFHdrNo);
+        AllocateEachFHdr(bm,startNo,curSectors,fHdr->getIndirect()==indirect,nextFHdrNo);
 
         bm->WriteBack(bitmap);
         delete bm;
@@ -301,6 +301,7 @@ FileHeader::Print()
      */
      FileHeader* fHdr = new FileHeader;
      copyFHdr(fHdr);
+     //DEBUG('f',"fHdr.indirect = %d %d\n",fHdr->getIndirect(),indirect);
      int numSectors;
      while(fHdr->getIndirect()!=-1){
          numSectors = fHdr->calculateNumSectors();
@@ -367,7 +368,7 @@ FileHeader::setIndirect(int Indirect) {
     indirect = Indirect;
 }
 
-void
+int*
 FileHeader::getDataSectors() {
     return dataSectors;
 }

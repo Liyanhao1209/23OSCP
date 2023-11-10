@@ -96,6 +96,7 @@ FileSystem::FileSystem(bool format)
     // Second, allocate space for the data blocks containing the contents
     // of the directory and bitmap files.  There better be enough space!
 
+        //printf("size of unsigned int: %d\n",sizeof (unsigned));
 	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
 	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
 
