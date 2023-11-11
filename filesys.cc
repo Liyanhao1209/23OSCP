@@ -97,6 +97,7 @@ FileSystem::FileSystem(bool format)
     // of the directory and bitmap files.  There better be enough space!
 
         //printf("size of unsigned int: %d\n",sizeof (unsigned));
+        printf("size of Directory Entry: %d\n",sizeof (DirectoryEntry));
 	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
 	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
 
@@ -138,8 +139,8 @@ FileSystem::FileSystem(bool format)
     } else {
     // if we are not formatting the disk, just open the files representing
     // the bitmap and directory; these are left open while Nachos is running
-        freeMapFile = new OpenFile(FreeMapSector);
-        directoryFile = new OpenFile(DirectorySector);
+        freeMapFile = new OpenFile(FreeMapSector); // 0
+        directoryFile = new OpenFile(DirectorySector); // 1
     }
 }
 
@@ -184,13 +185,13 @@ FileSystem::Create(char *name, int initialSize)
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
     directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(directoryFile); // 3 4
 
     if (directory->Find(name) != -1)
       success = FALSE;			// file is already in directory
     else {	
         freeMap = new BitMap(NumSectors);
-        freeMap->FetchFrom(freeMapFile);
+        freeMap->FetchFrom(freeMapFile); // 2
         sector = freeMap->Find();	// find a sector to hold the file header
     	if (sector == -1) 		
             success = FALSE;		// no free block for file header 
@@ -203,9 +204,9 @@ FileSystem::Create(char *name, int initialSize)
 	        else {
 	    	    success = TRUE;
 		        // everything worked, flush all changes back to disk
-    	    	hdr->WriteBack(sector); 		
-    	    	directory->WriteBack(directoryFile);
-    	    	freeMap->WriteBack(freeMapFile);
+    	    	hdr->WriteBack(sector); // 5
+    	    	directory->WriteBack(directoryFile); //3 4
+    	    	freeMap->WriteBack(freeMapFile); // 2
 	        }
             delete hdr;
 	    }
@@ -233,10 +234,10 @@ FileSystem::Open(char *name)
     int sector;
 
     DEBUG('f', "Opening file %s\n", name);
-    directory->FetchFrom(directoryFile);
-    sector = directory->Find(name); 
-    if (sector >= 0) 		
-	openFile = new OpenFile(sector);	// name was found in directory 
+    directory->FetchFrom(directoryFile); // 3 4
+    sector = directory->Find(name);
+    if (sector >= 0)
+	openFile = new OpenFile(sector);	// name was found in directory
     delete directory;
     return openFile;				// return NULL if not found
 }

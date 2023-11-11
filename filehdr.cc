@@ -108,6 +108,7 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isO
     // if there's no rest sector to be allocated,then there'll be no more external file headers
     int nextFHdrSectorNo = (restSectors-allocatedNum)>0?bitMap->Find():-1;
     if(isOrigin){
+        DEBUG('f',"Allocating the original file header\n");
         // the next recursion will be non-origin
         isOrigin = !isOrigin;
         // find a sector for external file header
@@ -249,31 +250,37 @@ FileHeader::updateFileLength(int newFileLength) {
     int oldSectors = calculateNumSectors();
     if(curSectors>oldSectors){
 
+        DEBUG('d',"allocate new sectors for current file header\n");
+
         // find the last file header
         FileHeader* fHdr = new FileHeader;
+
+        copyFHdr(fHdr);
+
         fHdr->setIndirect(indirect);
+        DEBUG('f',"Next file header index: %d\n",fHdr->getIndirect());
         while(fHdr->getIndirect()!=IllegalIndirectSectorNo){
-            fHdr->FetchFrom(fHdr->getIndirect());
+            fHdr->FetchFrom(fHdr->getIndirect()); // 5
+            DEBUG('f',"Next file header index: %d\n",fHdr->getIndirect());
             curSectors -= NumDirect;
         }
+
+        DEBUG('f',"last file header's length: %d, needed sectors: %d\n",fHdr->FileLength(),fHdr->calculateNumSectors());
 
         // where to start append
         int startNo = fHdr->calculateNumSectors();
 
         int bitmapSecNo = 0;
         // fetch the bit map from disk
-        OpenFile* bitmap = new OpenFile(bitmapSecNo);
+        OpenFile* bitmap = new OpenFile(bitmapSecNo); // 0
         // load the bitmap to mem
         BitMap* bm = new BitMap(NumSectors);
-        bm->FetchFrom(bitmap);
+        bm->FetchFrom(bitmap); // 2
 
-        // allocate a block to next file header
-        int nextFHdrNo = bm->Find();
-        ASSERT(nextFHdrNo!=-1);
         // for the last file header,make changes to the bit map
-        AllocateEachFHdr(bm,startNo,curSectors,fHdr->getIndirect()==indirect,nextFHdrNo);
+        AllocateEachFHdr(bm,startNo,curSectors,fHdr->getIndirect()==indirect,fHdr->getIndirect());
 
-        bm->WriteBack(bitmap);
+        bm->WriteBack(bitmap); // 2
         delete bm;
         delete bitmap;
 
@@ -389,9 +396,15 @@ FileHeader::getDataSectors() {
 
 void
 FileHeader::setDataSectors(BitMap* bitMap,int startNo,int numSectors) {
+    DEBUG('f',"Allocating dataSectors,start number: %d\n",startNo);
+    int* ds = getDataSectors();
     for(int i=startNo;i<numSectors;i++){
-        dataSectors[i] = bitMap->Find();
+        int idle = bitMap->Find();
+        DEBUG('f',"find idle sector: %d , data sector to be allocated: %d\n",idle,i);
+        ds[i] = idle;
+        DEBUG('f',"Allocate idle sector %d to data sector %d\n",idle,i);
     }
+    DEBUG('f',"Allocating Done\n");
 }
 
 void
@@ -411,4 +424,13 @@ FileHeader::copyFHdr(FileHeader *dest) {
     dest->setIndirect(indirect);
     dest->setFileLength(numBytes);
     dest->copyDataSectors(dataSectors,calculateNumSectors());
+}
+
+void
+FileHeader::printDataSectors(int sector) {
+    printf("Sector number for this file header : %d\n",sector);
+    for(int i=0;i<NumDirect;i++){
+        printf("%d",dataSectors[i]);
+    }
+    printf("\n");
 }

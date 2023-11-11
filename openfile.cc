@@ -29,6 +29,9 @@ OpenFile::OpenFile(int sector)
 { 
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
+    if(DebugIsEnabled('f')){
+        hdr->printDataSectors(sector);
+    }
     /**
      * Lab4:filesys extension
      * if we want to write the file header back to the disk automatically
@@ -192,7 +195,7 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
      * check if we add some new bytes to this file
      */
     if(newFileLength > fileLength){
-        hdr->updateFileLength(newFileLength);
+        hdr->updateFileLength(newFileLength); // 5 0 2
     }
 
     /**

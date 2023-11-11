@@ -80,6 +80,8 @@ class FileHeader {
 
     void setFileLength(int fl);
 
+    void printDataSectors(int sector);
+
     /**
      * Lab5:filesys extension
      * copy file header to another file header node to iterate the whole file

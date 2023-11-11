@@ -146,17 +146,17 @@ Append(char *from, char *to, int half)
 	return;
     }
 	 
-    if ( (openFile = fileSystem->Open(to)) == NULL)
+    if ( (openFile = fileSystem->Open(to)) == NULL) // 3 4
     {
 	// file "to" does not exits, then create one
         flag = false;
-	if (!fileSystem->Create(to, 0)) 
+	if (!fileSystem->Create(to, 0))  // 3 4 2 5 3 4 2
 	{
 	    printf("Append: couldn't create the file %s to append\n", to);
 	    fclose(fp);
 	    return;
 	}
-	openFile = fileSystem->Open(to);
+	openFile = fileSystem->Open(to); // 3 4
     }
 
     ASSERT(openFile != NULL);
@@ -172,7 +172,7 @@ Append(char *from, char *to, int half)
         int result;
 //	printf("start value: %d,  amountRead %d, ", start, amountRead);
 //	result = openFile->WriteAt(buffer, amountRead, start);
-	result = openFile->Write(buffer, amountRead);
+	result = openFile->Write(buffer, amountRead); // 5 0 2
 //	printf("result of write: %d\n", result);
 	ASSERT(result == amountRead);
 //	start += amountRead;
