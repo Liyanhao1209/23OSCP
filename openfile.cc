@@ -149,7 +149,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     	return 0; 				// check request
     if ((position + numBytes) > fileLength)		
 	numBytes = fileLength - position;
-    DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n", 	
+    DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n",
 			numBytes, position, fileLength);
 
     firstSector = divRoundDown(position, SectorSize);
@@ -203,7 +203,7 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
 //    if ((position + numBytes) > fileLength)
 //	numBytes = fileLength - position;
 
-    DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n", 	
+    DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n",
 			numBytes, position, fileLength);
 
     firstSector = divRoundDown(position, SectorSize);
@@ -224,6 +224,8 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
 
 // copy in the bytes we want to change 
     bcopy(from, &buf[position - (firstSector * SectorSize)], numBytes);
+
+    //DEBUG('f',"Writing file data to disk\n");
 
 // write modified sectors back
     for (i = firstSector; i <= lastSector; i++)	

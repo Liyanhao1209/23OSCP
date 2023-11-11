@@ -103,7 +103,10 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isO
     }
 
     int numSectors = restSectors>NumDirect?NumDirect:restSectors;
-    int nextFHdrSectorNo = bitMap->Find();
+    // the real number of sectors to be allocated this time
+    int allocatedNum = (numSectors-startNo)>0?(numSectors-startNo):0;
+    // if there's no rest sector to be allocated,then there'll be no more external file headers
+    int nextFHdrSectorNo = (restSectors-allocatedNum)>0?bitMap->Find():-1;
     if(isOrigin){
         // the next recursion will be non-origin
         isOrigin = !isOrigin;
@@ -129,7 +132,6 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isO
         // important to free the mem space
         delete fHdr;
     }
-    int allocatedNum = (numSectors-startNo)>0?(numSectors-startNo):0;
     // recursively allocate the next file header
     // ought to start at 0!
     AllocateEachFHdr(bitMap,0,restSectors-allocatedNum,isOrigin,nextFHdrSectorNo);
@@ -241,6 +243,7 @@ FileHeader::FileLength()
  */
 void
 FileHeader::updateFileLength(int newFileLength) {
+    DEBUG('d',"update file length,new file length:%d\n",newFileLength);
     //calculate current used sectors
     int curSectors = divRoundUp(newFileLength,SectorSize);
     int oldSectors = calculateNumSectors();
@@ -276,6 +279,11 @@ FileHeader::updateFileLength(int newFileLength) {
 
     }
     this->numBytes = newFileLength;
+    // for debugging
+    if(DebugIsEnabled('f')){
+        Print();
+    }
+
 }
 
 //----------------------------------------------------------------------
@@ -301,13 +309,16 @@ FileHeader::Print()
      */
      FileHeader* fHdr = new FileHeader;
      copyFHdr(fHdr);
-     //DEBUG('f',"fHdr.indirect = %d %d\n",fHdr->getIndirect(),indirect);
      int numSectors;
-     while(fHdr->getIndirect()!=-1){
+     while(true){
          numSectors = fHdr->calculateNumSectors();
          int* ds = fHdr->getDataSectors();
          for(i = 0;i<numSectors;i++){
              printf("%d ", ds[i]);
+         }
+         DEBUG('f',"\nfHdr.indirect = %d\n",fHdr->getIndirect());
+         if(fHdr->getIndirect()==IllegalIndirectSectorNo){
+             break;
          }
          fHdr->FetchFrom(fHdr->getIndirect());
      }
@@ -317,7 +328,7 @@ FileHeader::Print()
       * recursively print all file data
       */
     copyFHdr(fHdr);
-    while(fHdr->getIndirect()!=-1){
+    while(true){
         int* ds = fHdr->getDataSectors();
         numSectors = fHdr->calculateNumSectors();
         for (i = k = 0; i < numSectors; i++) {
@@ -330,6 +341,9 @@ FileHeader::Print()
                 }
             }
             printf("\n");
+        }
+        if(fHdr->getIndirect()==IllegalIndirectSectorNo){
+            break;
         }
         fHdr->FetchFrom(fHdr->getIndirect());
     }
