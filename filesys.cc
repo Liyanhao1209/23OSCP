@@ -98,8 +98,8 @@ FileSystem::FileSystem(bool format)
 
         //printf("size of unsigned int: %d\n",sizeof (unsigned));
         printf("size of Directory Entry: %d\n",sizeof (DirectoryEntry));
-	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize));
-	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize));
+	ASSERT(mapHdr->Allocate(freeMap, FreeMapFileSize,FreeMapSector));
+	ASSERT(dirHdr->Allocate(freeMap, DirectoryFileSize,DirectorySector));
 
     // Flush the bitmap and directory FileHeaders back to disk
     // We need to do this before we can "Open" the file, since open
@@ -107,7 +107,7 @@ FileSystem::FileSystem(bool format)
     // on it!).
 
         DEBUG('f', "Writing headers back to disk.\n");
-	mapHdr->WriteBack(FreeMapSector);    
+	mapHdr->WriteBack(FreeMapSector);
 	dirHdr->WriteBack(DirectorySector);
 
     // OK to open the bitmap and directory files now
@@ -199,7 +199,7 @@ FileSystem::Create(char *name, int initialSize)
             success = FALSE;	// no space in directory
 	    else {
     	    hdr = new FileHeader;
-	        if (!hdr->Allocate(freeMap, initialSize))
+	        if (!hdr->Allocate(freeMap, initialSize,sector))
             	    success = FALSE;	// no space on disk for data
 	        else {
 	    	    success = TRUE;

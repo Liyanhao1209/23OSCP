@@ -64,7 +64,7 @@ FileHeader::FileHeader(){
  * homeless and untraceable
  */
 bool
-FileHeader::Allocate(BitMap *freeMap, int fileSize)
+FileHeader::Allocate(BitMap *freeMap, int fileSize, int secNo)
 { 
     numBytes = fileSize;
     /**
@@ -78,64 +78,63 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize)
      * check if there are enough space for the data and the external file headers
      * except for the original one
      */
-    int totalSectors = numSectors + divRoundUp(numSectors,NumDirect)-1;
+    int totalSectors = numSectors + divRoundUp(numSectors,NumDirect);
+    // ought to be greater than -1!
+    totalSectors = (totalSectors-1)>=0?(totalSectors-1):0;
     if (freeMap->NumClear() < totalSectors)
 	return FALSE;		// not enough space
 
     // recursively allocate dataSectors
-    AllocateEachFHdr(freeMap,0,numSectors,true,0);
+    int nextSecNo = AllocateEachFHdr(freeMap,0,numSectors,secNo);
+    // prevent flushing the disk
+    FetchFrom(secNo);
+    // in case the indirect has not been written to the disk
+    //WriteBack(secNo);
+    numBytes = fileSize;
+    indirect = nextSecNo;
     return TRUE;
 }
 
 /**
  * recursive allocate the dataSectors
- * @param bitMap
- * @param startNo start sector number to be allocated
- * @param restSectors rest sectors that haven't been allocated on the bitmap
- * @param isOrigin whether is the origin file header
- * @param curSectorNo current file header's sectorNo
+ * @return the next file header's sector number,null if -1
  */
-void
-FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isOrigin,int curSectorNo) {
+ int
+FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,int curSectorNo) {
     if(restSectors<=0){
         // nothing left to allocate
-        return;
+        // there'll be no more external file headers
+        return -1;
     }
 
-    int numSectors = restSectors>NumDirect?NumDirect:restSectors;
+    //DEBUG('f',"Allocating the original file header\n");
+    int leftSize = NumDirect - startNo;
     // the real number of sectors to be allocated this time
-    int allocatedNum = (numSectors-startNo)>0?(numSectors-startNo):0;
+    int allocatedNum = restSectors>leftSize?leftSize:restSectors;
     // if there's no rest sector to be allocated,then there'll be no more external file headers
-    int nextFHdrSectorNo = (restSectors-allocatedNum)>0?bitMap->Find():-1;
-    if(isOrigin){
-        DEBUG('f',"Allocating the original file header\n");
-        // the next recursion will be non-origin
-        isOrigin = !isOrigin;
-        // find a sector for external file header
-        indirect = nextFHdrSectorNo;
-        // allocate some of the dataSectors
-        setDataSectors(bitMap,startNo,numSectors);
-        // it's ok to keep the first file header in the RAM
-        // we'll write it back by invoking WriteBack function manually
-    }else{
-        // not the original file header,create one
-        FileHeader* fHdr = new FileHeader;
-        // in case it has been initialized
-        fHdr->FetchFrom(curSectorNo);
-        // find a sector for external file header
-        fHdr->setIndirect(nextFHdrSectorNo);
-        // set the file length
-        fHdr->setFileLength(numSectors*SectorSize);
-        // allocate some of the dataSectors
-        fHdr->setDataSectors(bitMap,startNo,numSectors);
-        // write the external fileHeader back to the disk immediately
-        fHdr->WriteBack(curSectorNo);
-        // important to free the mem space
-        delete fHdr;
+    int nextFHdrSectorNo = (restSectors-allocatedNum)>0?bitMap->Find():IllegalIndirectSectorNo;
+    DEBUG('f',"There'll be %d rest sectors after this allocation\n",restSectors-allocatedNum);
+    if(nextFHdrSectorNo!=IllegalIndirectSectorNo){
+        DEBUG('f',"Allocate sector %d as an external file header for file header on %d\n",
+              nextFHdrSectorNo,curSectorNo);
     }
+
+    FileHeader* fHdr = new FileHeader;
+    // fetch the file on the disk
+    // in case we change the part that has already been allocated
+    fHdr->FetchFrom(curSectorNo);
+    fHdr->setFileLength((startNo+allocatedNum)*SectorSize);
+    //allocate the data sectors
+    fHdr->setDataSectors(bitMap,startNo,allocatedNum);
+    // set indirect field
+    fHdr->setIndirect(nextFHdrSectorNo);
+    fHdr->WriteBack(curSectorNo);
+    delete fHdr;
+
     // recursively allocate the next file header
     // ought to start at 0!
-    AllocateEachFHdr(bitMap,0,restSectors-allocatedNum,isOrigin,nextFHdrSectorNo);
+    AllocateEachFHdr(bitMap,0,restSectors-allocatedNum,nextFHdrSectorNo);
+    return nextFHdrSectorNo;
 }
 
 //----------------------------------------------------------------------
@@ -243,23 +242,26 @@ FileHeader::FileLength()
  * thus we should change the bit map when we're writing some data into the file
  */
 void
-FileHeader::updateFileLength(int newFileLength) {
+FileHeader::updateFileLength(int newFileLength,int secNo) {
     DEBUG('d',"update file length,new file length:%d\n",newFileLength);
     //calculate current used sectors
     int curSectors = divRoundUp(newFileLength,SectorSize);
     int oldSectors = calculateNumSectors();
     if(curSectors>oldSectors){
 
+        int add = curSectors-oldSectors;
+
         DEBUG('d',"allocate new sectors for current file header\n");
 
         // find the last file header
         FileHeader* fHdr = new FileHeader;
 
-        copyFHdr(fHdr);
+        int lastFHdrSecNo = secNo;
 
-        fHdr->setIndirect(indirect);
+        fHdr->FetchFrom(secNo);
         DEBUG('f',"Next file header index: %d\n",fHdr->getIndirect());
         while(fHdr->getIndirect()!=IllegalIndirectSectorNo){
+            lastFHdrSecNo = fHdr->getIndirect();
             fHdr->FetchFrom(fHdr->getIndirect()); // 5
             DEBUG('f',"Next file header index: %d\n",fHdr->getIndirect());
             curSectors -= NumDirect;
@@ -278,7 +280,9 @@ FileHeader::updateFileLength(int newFileLength) {
         bm->FetchFrom(bitmap); // 2
 
         // for the last file header,make changes to the bit map
-        AllocateEachFHdr(bm,startNo,curSectors,fHdr->getIndirect()==indirect,fHdr->getIndirect());
+        DEBUG('f',"Ready to allocate sectors for last file header on sector: %d\n",lastFHdrSecNo);
+        AllocateEachFHdr(bm,startNo,add,lastFHdrSecNo);
+        FetchFrom(secNo);
 
         bm->WriteBack(bitmap); // 2
         delete bm;
@@ -398,7 +402,7 @@ void
 FileHeader::setDataSectors(BitMap* bitMap,int startNo,int numSectors) {
     DEBUG('f',"Allocating dataSectors,start number: %d\n",startNo);
     int* ds = getDataSectors();
-    for(int i=startNo;i<numSectors;i++){
+    for(int i=startNo;i<startNo+numSectors;i++){
         int idle = bitMap->Find();
         DEBUG('f',"find idle sector: %d , data sector to be allocated: %d\n",idle,i);
         ds[i] = idle;

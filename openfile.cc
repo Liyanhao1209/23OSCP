@@ -61,6 +61,7 @@ OpenFile::~OpenFile()
      * happens when the caller of WriteAt forget to invoke WriteHeaderBack() manually
      */
      if(latestLength!=hdr->FileLength()){
+         hdr->FetchFrom(fileHeaderSectorNo);
          // time(NULL) returns the passed seconds since UTC 1970.1.1:00:00:00
          // the type of return value is time_t,which is the same size of type int
          // so the forcing cast is reasonable
@@ -152,8 +153,8 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     	return 0; 				// check request
     if ((position + numBytes) > fileLength)		
 	numBytes = fileLength - position;
-    DEBUG('f', "Reading %d bytes at %d, from file of length %d.\n",
-			numBytes, position, fileLength);
+    DEBUG('f', "Reading %d bytes at %d, from file of length %d.File Sector number: %d\n",
+			numBytes, position, fileLength,fileHeaderSectorNo);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);
@@ -195,7 +196,7 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
      * check if we add some new bytes to this file
      */
     if(newFileLength > fileLength){
-        hdr->updateFileLength(newFileLength); // 5 0 2
+        hdr->updateFileLength(newFileLength,fileHeaderSectorNo); // 5 0 2
     }
 
     /**
@@ -206,8 +207,8 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
 //    if ((position + numBytes) > fileLength)
 //	numBytes = fileLength - position;
 
-    DEBUG('f', "Writing %d bytes at %d, from file of length %d.\n",
-			numBytes, position, fileLength);
+    DEBUG('f', "Writing %d bytes at %d, from file of length %d.File Sector number: %d\n",
+			numBytes, position, fileLength,fileHeaderSectorNo);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);

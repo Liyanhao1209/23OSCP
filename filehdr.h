@@ -39,7 +39,7 @@ class FileHeader {
   public:
     FileHeader();
 
-    bool Allocate(BitMap *bitMap, int fileSize);// Initialize a file header, 
+    bool Allocate(BitMap *bitMap, int fileSize, int secNo);// Initialize a file header,
 						//  including allocating space 
 						//  on disk for the file data
     void Deallocate(BitMap *bitMap);  		// De-allocate this file's 
@@ -62,7 +62,7 @@ class FileHeader {
      * Lab4:filesys extension
      * Reasonable since we support dynamic length file
      */
-    void updateFileLength(int newFileLength);
+    void updateFileLength(int newFileLength,int secNo);
 
     int calculateNumSectors();
 
@@ -102,7 +102,7 @@ class FileHeader {
     int indirect;
     int dataSectors[NumDirect];		// Disk sector numbers for each data block in the file
 
-    void AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,bool isOrigin,int curSectorNo);
+    int AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,int curSectorNo);
 
     void copyDataSectors(int *src,int numSectors);
 };
