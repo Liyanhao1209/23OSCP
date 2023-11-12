@@ -88,6 +88,14 @@ class FileHeader {
      */
      void copyFHdr(FileHeader* dest);
 
+     /**
+      * Lab5:filesys extension
+      * update the last external file header's length
+      * be sure you invoke this function on the original fHdr pointer
+      * @return the new length of last file header
+      */
+     int updateLastFileHeaderLength(int secNo);
+
   private:
     int numBytes;			// Number of bytes in the file
     /**

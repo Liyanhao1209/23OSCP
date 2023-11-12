@@ -153,8 +153,7 @@ OpenFile::ReadAt(char *into, int numBytes, int position)
     	return 0; 				// check request
     if ((position + numBytes) > fileLength)		
 	numBytes = fileLength - position;
-    DEBUG('f', "Reading %d bytes at %d, from file of length %d.File Sector number: %d\n",
-			numBytes, position, fileLength,fileHeaderSectorNo);
+    //DEBUG('f', "Reading %d bytes at %d, from file of length %d.File Sector number: %d\n",numBytes, position, fileLength,fileHeaderSectorNo);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);
@@ -207,8 +206,7 @@ OpenFile::WriteAt(char *from, int numBytes, int position)
 //    if ((position + numBytes) > fileLength)
 //	numBytes = fileLength - position;
 
-    DEBUG('f', "Writing %d bytes at %d, from file of length %d.File Sector number: %d\n",
-			numBytes, position, fileLength,fileHeaderSectorNo);
+    //DEBUG('f', "Writing %d bytes at %d, from file of length %d.File Sector number: %d\n",numBytes, position, fileLength,fileHeaderSectorNo);
 
     firstSector = divRoundDown(position, SectorSize);
     lastSector = divRoundDown(position + numBytes - 1, SectorSize);

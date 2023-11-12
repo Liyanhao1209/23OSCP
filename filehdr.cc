@@ -92,6 +92,8 @@ FileHeader::Allocate(BitMap *freeMap, int fileSize, int secNo)
     //WriteBack(secNo);
     numBytes = fileSize;
     indirect = nextSecNo;
+    //DEBUG('f',"updating the last file header's length\n");
+    updateLastFileHeaderLength(secNo);
     return TRUE;
 }
 
@@ -123,12 +125,14 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,int curS
     // fetch the file on the disk
     // in case we change the part that has already been allocated
     fHdr->FetchFrom(curSectorNo);
+    fHdr->setLastUpdateTime((int)time(NULL));
     fHdr->setFileLength((startNo+allocatedNum)*SectorSize);
     //allocate the data sectors
     fHdr->setDataSectors(bitMap,startNo,allocatedNum);
     // set indirect field
     fHdr->setIndirect(nextFHdrSectorNo);
     fHdr->WriteBack(curSectorNo);
+    DEBUG('f',"Allocate fHdr:Write file header %d back to disk\n",curSectorNo);
     delete fHdr;
 
     // recursively allocate the next file header
@@ -267,7 +271,7 @@ FileHeader::updateFileLength(int newFileLength,int secNo) {
             curSectors -= NumDirect;
         }
 
-        DEBUG('f',"last file header's length: %d, needed sectors: %d\n",fHdr->FileLength(),fHdr->calculateNumSectors());
+        //DEBUG('f',"last file header's length: %d, needed sectors: %d\n",fHdr->FileLength(),fHdr->calculateNumSectors());
 
         // where to start append
         int startNo = fHdr->calculateNumSectors();
@@ -287,13 +291,14 @@ FileHeader::updateFileLength(int newFileLength,int secNo) {
         bm->WriteBack(bitmap); // 2
         delete bm;
         delete bitmap;
-
+        delete fHdr;
     }
     this->numBytes = newFileLength;
+    updateLastFileHeaderLength(secNo);
     // for debugging
-    if(DebugIsEnabled('f')){
-        Print();
-    }
+//    if(DebugIsEnabled('f')){
+//        Print();
+//    }
 
 }
 
@@ -322,12 +327,16 @@ FileHeader::Print()
      copyFHdr(fHdr);
      int numSectors;
      while(true){
+         if(DebugIsEnabled('f')){
+             printf("Current file header has %d sectors,file length is %d,next file header: %d\n",
+                    fHdr->calculateNumSectors(),fHdr->FileLength(),fHdr->getIndirect());
+         }
          numSectors = fHdr->calculateNumSectors();
          int* ds = fHdr->getDataSectors();
          for(i = 0;i<numSectors;i++){
              printf("%d ", ds[i]);
          }
-         DEBUG('f',"\nfHdr.indirect = %d\n",fHdr->getIndirect());
+         printf("\n");
          if(fHdr->getIndirect()==IllegalIndirectSectorNo){
              break;
          }
@@ -370,7 +379,8 @@ FileHeader::Print()
  */
 int
 FileHeader::calculateNumSectors() {
-    return divRoundUp(numBytes,SectorSize);
+    int numSectors = divRoundUp(numBytes,SectorSize);
+    return numSectors>NumDirect?NumDirect:numSectors;
 }
 
 int
@@ -437,4 +447,27 @@ FileHeader::printDataSectors(int sector) {
         printf("%d",dataSectors[i]);
     }
     printf("\n");
+}
+
+int
+FileHeader::updateLastFileHeaderLength(int secNo) {
+    FileHeader* fHdr = new FileHeader;
+    copyFHdr(fHdr);
+    //DEBUG('f',"fHdr.fl= % d,fl = %d\n",fHdr->FileLength(),numBytes);
+    int fl = fHdr->FileLength();
+    int lastSecNo = secNo;
+    // get the last file header
+    //DEBUG('f',"fl :%d,max: %d\n",fl,SectorSize*NumDirect);
+    while(fl>SectorSize*NumDirect){
+        fl -= SectorSize*NumDirect;
+        //DEBUG('f',"fl :%d,max: %d\n",fl,SectorSize*NumDirect);
+        ASSERT(fHdr->getIndirect()!=IllegalIndirectSectorNo);
+        lastSecNo = fHdr->getIndirect();
+        fHdr->FetchFrom(fHdr->getIndirect());
+    }
+    fHdr->setFileLength(fl);
+    fHdr->WriteBack(lastSecNo);
+    //DEBUG('f',"update last file header on sector %d,file length %d\n",lastSecNo,fl);
+    delete fHdr;
+    return fl;
 }

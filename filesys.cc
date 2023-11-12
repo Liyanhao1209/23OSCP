@@ -205,6 +205,9 @@ FileSystem::Create(char *name, int initialSize)
 	    	    success = TRUE;
 		        // everything worked, flush all changes back to disk
     	    	hdr->WriteBack(sector); // 5
+                if(DebugIsEnabled('f')){
+                    hdr->Print();
+                }
     	    	directory->WriteBack(directoryFile); //3 4
     	    	freeMap->WriteBack(freeMapFile); // 2
 	        }
