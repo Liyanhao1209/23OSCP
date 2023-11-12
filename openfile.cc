@@ -30,7 +30,7 @@ OpenFile::OpenFile(int sector)
     hdr = new FileHeader;
     hdr->FetchFrom(sector);
     if(DebugIsEnabled('f')){
-        hdr->printDataSectors(sector);
+        //hdr->printDataSectors(sector);
     }
     /**
      * Lab4:filesys extension

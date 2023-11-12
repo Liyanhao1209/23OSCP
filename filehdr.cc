@@ -250,7 +250,7 @@ FileHeader::updateFileLength(int newFileLength,int secNo) {
     DEBUG('d',"update file length,new file length:%d\n",newFileLength);
     //calculate current used sectors
     int curSectors = divRoundUp(newFileLength,SectorSize);
-    int oldSectors = calculateNumSectors();
+    int oldSectors = divRoundUp(numBytes,SectorSize);
     if(curSectors>oldSectors){
 
         int add = curSectors-oldSectors;
