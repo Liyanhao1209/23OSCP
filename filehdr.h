@@ -42,7 +42,7 @@ class FileHeader {
     bool Allocate(BitMap *bitMap, int fileSize, int secNo);// Initialize a file header,
 						//  including allocating space 
 						//  on disk for the file data
-    void Deallocate(BitMap *bitMap);  		// De-allocate this file's 
+    void Deallocate(BitMap *bitMap,int curSectorNo);  		// De-allocate this file's
 						//  data blocks
 
     void FetchFrom(int sectorNumber); 	// Initialize file header from disk

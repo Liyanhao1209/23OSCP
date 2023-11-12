@@ -147,18 +147,32 @@ FileHeader::AllocateEachFHdr(BitMap *bitMap,int startNo,int restSectors,int curS
 //
 //	"freeMap" is the bit map of free disk sectors
 //----------------------------------------------------------------------
-
+/**
+ * Lab5:filesys extension
+ * recursively deallocate each file header for current file
+ * start with curSectorNo
+ */
 void 
-FileHeader::Deallocate(BitMap *freeMap)
+FileHeader::Deallocate(BitMap *freeMap,int curSectorNo)
 {
-    int numSectors = calculateNumSectors()>NumDirect?NumDirect:calculateNumSectors();
-    for (int i = 0; i < numSectors; i++) {
-        ASSERT(freeMap->Test((int) dataSectors[i]));  // ought to be marked!
-	    freeMap->Clear((int) dataSectors[i]);
+    if(curSectorNo==IllegalIndirectSectorNo){
+        // the end of the external file headers
+        return;
     }
-    // no more external file headers anymore
-    indirect = IllegalIndirectSectorNo;
+    FileHeader* fHdr = new FileHeader;
+    // get current file header
+    fHdr->FetchFrom(curSectorNo);
+    int numSectors = fHdr->calculateNumSectors();
+    int* ds = fHdr->getDataSectors();
+    for (int i = 0; i < numSectors; i++) {
+        ASSERT(freeMap->Test((int) ds[i]));  // ought to be marked!
+        freeMap->Clear((int) ds[i]);
+    }
+    ASSERT(freeMap->Test((int)curSectorNo));
+    freeMap->Clear((int)curSectorNo);
+    Deallocate(freeMap,fHdr->getIndirect());
 }
+
 
 //----------------------------------------------------------------------
 // FileHeader::FetchFrom

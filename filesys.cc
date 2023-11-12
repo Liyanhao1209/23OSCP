@@ -280,7 +280,7 @@ FileSystem::Remove(char *name)
     freeMap = new BitMap(NumSectors);
     freeMap->FetchFrom(freeMapFile);
 
-    fileHdr->Deallocate(freeMap);  		// remove data blocks
+    fileHdr->Deallocate(freeMap,sector);  		// remove data blocks
     freeMap->Clear(sector);			// remove header block
     directory->Remove(name);
 
