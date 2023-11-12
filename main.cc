@@ -147,7 +147,10 @@ main(int argc, char **argv)
             fileSystem->Print();
 	} else if (!strcmp(*argv, "-t")) {	// performance test
             PerformanceTest();
-	}
+	} else if (!strcmp(*argv, "-DI")){ //Lab5
+            fileSystem->Statistic();
+    }
+
 #endif // FILESYS
 #ifdef NETWORK
         if (!strcmp(*argv, "-o")) {

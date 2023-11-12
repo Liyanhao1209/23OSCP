@@ -195,3 +195,13 @@ Directory::Print()
     printf("\n");
     delete hdr;
 }
+
+int
+Directory::getTableSize() {
+    return tableSize;
+}
+
+DirectoryEntry*
+Directory::getTable() {
+    return table;
+}

@@ -67,9 +67,15 @@ class Directory {
 
     void List();			// Print the names of all the files
 					//  in the directory
-    void Print();			// Verbose print of the contents
-					//  of the directory -- all the file
-					//  names and their contents.
+    void Print();			// Verbose print of the contents of the directory -- all the file names and their contents.
+
+    /**
+     * Lab5:filesys extension
+     * for running option "-DI"
+     */
+    int getTableSize();
+
+    DirectoryEntry* getTable();
 
   private:
     int tableSize;			// Number of directory entries

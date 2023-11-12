@@ -360,3 +360,62 @@ FileSystem::querySectorNoByFileName(char *fileName) {
     delete dir;
     return ans;
 }
+
+/**
+ * Lab5:filesys extension
+ * add '-DI' running option
+ * to stats:
+ * 1. total size of the nachos disk
+ * 2. size of already used
+ * 3. size of idle space
+ * 4. regular file numbers
+ * 5. total Bytes of regular files
+ * 6. total Bytes of regular files' sectors
+ * 7. total fragments of regular files
+ */
+void
+FileSystem::Statistic() {
+    // Fetch the bitmap and dir
+    Directory* dir;
+    dir = new Directory(NumDirEntries);
+    dir->FetchFrom(directoryFile);
+
+    BitMap* bm;
+    bm = new BitMap(NumSectors);
+    bm->FetchFrom(freeMapFile);
+
+    FileHeader* fHdr = new FileHeader;
+
+    printf("Disk size: %d sectors, %d bytes.\n",NumSectors,NumSectors*SectorSize);
+    int used = NumSectors-bm->NumClear();
+    printf("Used: %d sectors, %d bytes.\n",used,used*SectorSize);
+    int idle = NumSectors-used;
+    printf("Free: %d sectors, %d bytes.\n",idle,idle*SectorSize);
+    DirectoryEntry* dirEntry = dir->getTable();
+    int* fSizes = new int[NumDirEntries];
+    int dirSize = 0;
+    for(int i=0;i<NumDirEntries&&dirEntry[i].inUse;i++){
+        fHdr->FetchFrom(dirEntry[i].sector);
+        fSizes[i] = fHdr->FileLength();
+        dirSize++;
+    }
+    int fOccupy = 0;
+    int rfSize = 0;
+    for(int i=0;i<dirSize;i++){
+        fOccupy += divRoundUp(fSizes[i],SectorSize);
+        rfSize += fSizes[i];
+    }
+    printf("%d bytes in %d files, occupy %d bytes(%d sectors).\n",rfSize,dirSize,fOccupy*SectorSize,fOccupy);
+    int fragments = 0;
+    int fragSectors = 0;
+    for(int i=0;i<dirSize;i++){
+        fragments += SectorSize-(fSizes[i]%SectorSize);
+        if(fSizes[i]%SectorSize!=0){
+            fragSectors += 1;
+        }
+    }
+    printf("%d bytes of internal fragmentation in %d sectors.\n",fragments,fragSectors);
+    delete dir;
+    delete bm;
+    delete fHdr;
+}

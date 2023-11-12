@@ -87,6 +87,20 @@ class FileSystem {
 
     int querySectorNoByFileName(char* fileName);
 
+    /**
+     * Lab5:filesys extension
+     * add '-DI' running option
+     * to stats:
+     * 1. total size of the nachos disk
+     * 2. size of already used
+     * 3. size of idle space
+     * 4. regular file numbers
+     * 5. total Bytes of regular files
+     * 6. total Bytes of regular files' sectors
+     * 7. total fragments of regular files
+     */
+     void Statistic();
+
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
 					// represented as a file
