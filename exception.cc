@@ -25,6 +25,18 @@
 #include "system.h"
 #include "syscall.h"
 
+/**
+ * Lab6:mup
+ * From contents for the ExceptionHandler:
+ * And don't forget to increment the pc before returning. (Or else you'll
+ * loop making the same system call forever!
+ */
+void IncPc(){
+    machine->WriteRegister(PrevPCReg,machine->ReadRegister(PCReg));
+    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
+    machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg) + 4);
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 // 	Entry point into the Nachos kernel.  Called when a user program
@@ -53,11 +65,26 @@ ExceptionHandler(ExceptionType which)
 {
     int type = machine->ReadRegister(2);
 
-    if ((which == SyscallException) && (type == SC_Halt)) {
-	DEBUG('a', "Shutdown, initiated by user program.\n");
-   	interrupt->Halt();
-    } else {
-	printf("Unexpected user mode exception %d %d\n", which, type);
-	ASSERT(FALSE);
+    if(which == SyscallException){
+        if(type == SC_Halt){
+            DEBUG('a', "Shutdown, initiated by user program.\n");
+            interrupt->Halt();
+            // never reached
+            return;
+        }
+        else if(type == SC_Exec){
+            interrupt->Exec();
+        }
+        else if(type == SC_PrintInt){
+            interrupt->PrintInt();
+        }
+        // Note that the PC increases
+        IncPc();
+    }else{
+        printf("Unexpected user mode exception %d %d\n", which, type);
+        ASSERT(FALSE);
     }
 }
+
+
+

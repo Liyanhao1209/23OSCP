@@ -30,7 +30,7 @@ SynchDisk   *synchDisk;
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
 BitMap* pageMap;
-int* ASID;
+int* ASID = 0;
 #endif
 
 #ifdef NETWORK
@@ -79,6 +79,7 @@ TimerInterruptHandler(_int dummy)
 void
 Initialize(int argc, char **argv)
 {
+    int a = 1;
     int argCount;
     char* debugArgs = (char*)"";
     bool randomYield = FALSE;
@@ -135,7 +136,6 @@ Initialize(int argc, char **argv)
 	}
 #endif
     }
-
     DebugInit(debugArgs);			// initialize DEBUG messages
     stats = new Statistics();			// collect statistics
     interrupt = new Interrupt;			// start up interrupt handling
@@ -153,7 +153,8 @@ Initialize(int argc, char **argv)
 
     interrupt->Enable();
     CallOnUserAbort(Cleanup);			// if user hits ctl-C
-    
+
+
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg);	// this must come first
     /**
@@ -162,7 +163,6 @@ Initialize(int argc, char **argv)
      */
     int numpages = 32;
     pageMap = new BitMap(numpages);
-    *ASID = 0;
 #endif
 
 #ifdef FILESYS
@@ -192,6 +192,8 @@ Cleanup()
     
 #ifdef USER_PROGRAM
     delete machine;
+    delete pageMap;
+    delete ASID;
 #endif
 
 #ifdef FILESYS_NEEDED

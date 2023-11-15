@@ -97,6 +97,12 @@ class Interrupt {
      * syscall Exec(),for ExceptionHandler to invoke
      */
      void Exec();
+
+     /**
+      * Lab6:mup
+      * syscall PrintInt(),for ExceptionHandler to invoke
+      */
+     void PrintInt();
     
     void YieldOnReturn();		// cause a context switch on return 
 					// from an interrupt handler

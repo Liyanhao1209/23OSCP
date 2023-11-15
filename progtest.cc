@@ -23,6 +23,7 @@
 void
 StartProcess(char *filename)
 {
+    DEBUG('u',"Starting user process...\n");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;
 
@@ -38,6 +39,7 @@ StartProcess(char *filename)
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
 
+    DEBUG('u',"ready to start user process\n");
     machine->Run();			// jump to the user program
     ASSERT(FALSE);			// machine->Run never returns;
 					// the address space exits

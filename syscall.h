@@ -29,6 +29,11 @@
 #define SC_Close	8
 #define SC_Fork		9
 #define SC_Yield	10
+/*
+ * Lab6:mup
+ * define the PrintInt index here
+ */
+#define SC_PrintInt 11
 
 #ifndef IN_ASM
 
@@ -41,6 +46,12 @@
  * are then invoked in the Nachos kernel, after appropriate error checking, 
  * from the system call entry point in exception.cc.
  */
+
+/**
+ * Lab6:mup
+ * syscall PrintInt
+ */
+void PrintInt(int num);
 
 /* Stop Nachos, and print out performance stats */
 void Halt();		

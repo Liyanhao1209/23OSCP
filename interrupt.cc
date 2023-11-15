@@ -369,6 +369,15 @@ Interrupt::DumpState()
     fflush(stdout);
 }
 
+
+// dummy arg,useless
+void userFunc(_int dummy){
+    // run the user prog
+    machine->Run();
+    // never returns
+    ASSERT(FALSE);
+}
+
 void
 Interrupt::Exec() {
     printf("Execute system call of Exec()\n");
@@ -421,11 +430,11 @@ Interrupt::Exec() {
      currentThread->Yield();
 }
 
-// dummy arg,useless
-void userFunc(_int dummy){
-    // run the user prog
-    machine->Run();
-    // never returns
-    ASSERT(FALSE);
+void
+Interrupt::PrintInt() {
+    // the arg of syscall is in reg 4
+    printf("%d\n",machine->ReadRegister(4));
 }
+
+
 

@@ -42,6 +42,21 @@ __start:
  * -------------------------------------------------------------
  */
 
+/**
+ * Lab6:mup
+ * stub for syscall PrintInt
+ * just a backup,this file should be placed in the test directory
+ * to make noff file
+ */
+
+    .globl PrintInt
+    .ent	PrintInt
+PrintInt:
+    addiu $2,$0,SC_PrintInt
+    syscall
+    j	$31
+    .end PrintInt
+
 	.globl Halt
 	.ent	Halt
 Halt:
