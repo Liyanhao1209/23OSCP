@@ -80,6 +80,7 @@ ExceptionHandler(ExceptionType which)
         }
         // Note that the PC increases
         IncPc();
+        return;
     }else{
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);

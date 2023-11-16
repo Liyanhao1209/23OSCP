@@ -112,7 +112,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 // and the stack segment
     bzero(machine->mainMemory, size);
 
-    int pageStart,frameStart;
+    int pageStart,frameStart,pOffset;
 // then, copy in the code and data segments into memory
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
@@ -124,16 +124,18 @@ AddrSpace::AddrSpace(OpenFile *executable)
          * then load the exe file's segment to the corresponding mem addr
          */
          pageStart = noffH.code.virtualAddr/PageSize;
+         pOffset = noffH.code.virtualAddr % PageSize;
          frameStart = pageTable[pageStart].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize]),
+        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
 			noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
         pageStart = noffH.initData.virtualAddr/PageSize;
+        pOffset = noffH.initData.virtualAddr % PageSize;
         frameStart = pageTable[pageStart].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize]),
+        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
 
