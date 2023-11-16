@@ -41,6 +41,8 @@ extern Machine* machine;	// user program memory and registers
  */
 extern BitMap* pageMap;
 extern int ASID;
+
+extern void printMainMemory(int sa,int size);
 #endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB 

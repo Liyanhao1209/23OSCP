@@ -31,6 +31,13 @@ SynchDisk   *synchDisk;
 Machine *machine;	// user program memory and registers
 BitMap* pageMap;
 int ASID = 0;
+void printMainMemory(int sa,int size){
+    char buf[size];
+    for(int i=0;i<size;i++){
+        machine->ReadMem(sa+i,1,(int*)&buf[i]);
+    }
+    printf("Main Mem start from sa: %d,size: %d,contents: %s\n",sa,size,buf);
+}
 #endif
 
 #ifdef NETWORK
@@ -160,8 +167,7 @@ Initialize(int argc, char **argv)
      * Lab6:mup
      * initialize pageMap
      */
-    int numpages = 64;
-    pageMap = new BitMap(numpages);
+    pageMap = new BitMap(NumPhysPages);
 #endif
 
 #ifdef FILESYS

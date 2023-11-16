@@ -14,6 +14,8 @@
 #include "addrspace.h"
 #include "synch.h"
 
+extern void printMainMemory(int sa,int size);
+
 //----------------------------------------------------------------------
 // StartProcess
 // 	Run a user program.  Open the executable, load it into
@@ -38,6 +40,9 @@ StartProcess(char *filename)
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
+    if(DebugIsEnabled('s')){
+        printMainMemory(304,50);
+    }
 
     DEBUG('u',"ready to start user process\n");
     machine->Run();			// jump to the user program

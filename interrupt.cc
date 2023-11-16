@@ -389,6 +389,7 @@ Interrupt::Exec() {
      */
      int fnReg = 4;
      int fnAddr = machine->ReadRegister(fnReg);
+     DEBUG('u',"file name address is: %d\n",fnAddr);
 
      int i;
      for(i=0;i<maxFnLen;i++){
@@ -434,6 +435,34 @@ void
 Interrupt::PrintInt() {
     // the arg of syscall is in reg 4
     printf("%d\n",machine->ReadRegister(4));
+}
+
+void
+Interrupt::Fork(){
+    printf("Execute system call of Exec()\n");
+
+    /**
+     * The start addr of func is in the r4 reg
+     */
+     int funcReg = 4;
+     int funcAddr = machine->ReadRegister(funcReg);
+
+     /**
+      * Let the PC jump to the function entry
+      */
+    machine->registers[PCReg] = funcAddr;
+    machine->registers[PrevPCReg] = (funcAddr>=4)?(funcAddr-4):0;
+    machine->registers[NextPCReg] = funcAddr+4;
+
+    /**
+     * new thread sharing the same space with the old thread
+     */
+    Thread* tfu = new Thread(currentThread->getName());
+    tfu->space = currentThread->space;
+    tfu->Fork(userFunc,0);
+
+    // LET'S FXXKING GO!
+    currentThread->Yield();
 }
 
 

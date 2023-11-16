@@ -103,6 +103,12 @@ class Interrupt {
       * syscall PrintInt(),for ExceptionHandler to invoke
       */
      void PrintInt();
+
+     /**
+      * Lab6:mup
+      * syscall Fork(),for ExceptionHandler to invoke
+      */
+      void Fork();
     
     void YieldOnReturn();		// cause a context switch on return 
 					// from an interrupt handler
