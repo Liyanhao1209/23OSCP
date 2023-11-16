@@ -160,7 +160,7 @@ Initialize(int argc, char **argv)
      * Lab6:mup
      * initialize pageMap
      */
-    int numpages = 32;
+    int numpages = 64;
     pageMap = new BitMap(numpages);
 #endif
 
