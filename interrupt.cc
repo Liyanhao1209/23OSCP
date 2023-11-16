@@ -389,6 +389,7 @@ Interrupt::Exec() {
      */
      int fnReg = 4;
      int fnAddr = machine->ReadRegister(fnReg);
+     DEBUG('u',"file name address is: %d\n",fnAddr);
 
      int i;
      for(i=0;i<maxFnLen;i++){

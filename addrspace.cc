@@ -20,6 +20,8 @@
 #include "addrspace.h"
 #include "noff.h"
 
+extern void printMainMemory(int sa,int size);
+
 //----------------------------------------------------------------------
 // SwapHeader
 // 	Do little endian to big endian conversion on the bytes in the 
@@ -138,7 +140,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
         executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
 			noffH.initData.size, noffH.initData.inFileAddr);
     }
-
 }
 
 //----------------------------------------------------------------------
