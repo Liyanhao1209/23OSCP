@@ -40,7 +40,7 @@ extern Machine* machine;	// user program memory and registers
  * id for address space
  */
 extern BitMap* pageMap;
-extern int* ASID;
+extern int ASID;
 #endif
 
 #ifdef FILESYS_NEEDED 		// FILESYS or FILESYS_STUB 

@@ -16,6 +16,8 @@
 #include "copyright.h"
 #include "filesys.h"
 
+extern int ASID;
+
 #define UserStackSize		1024 	// increase this as necessary!
 
 class AddrSpace {
@@ -38,9 +40,7 @@ class AddrSpace {
     void Print();
 
     // getter of asId
-    int getAsId(){
-        return asId;
-    }
+    int getAsId();
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

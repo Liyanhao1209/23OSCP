@@ -30,7 +30,7 @@ SynchDisk   *synchDisk;
 #ifdef USER_PROGRAM	// requires either FILESYS or FILESYS_STUB
 Machine *machine;	// user program memory and registers
 BitMap* pageMap;
-int* ASID = 0;
+int ASID = 0;
 #endif
 
 #ifdef NETWORK
@@ -79,7 +79,6 @@ TimerInterruptHandler(_int dummy)
 void
 Initialize(int argc, char **argv)
 {
-    int a = 1;
     int argCount;
     char* debugArgs = (char*)"";
     bool randomYield = FALSE;
@@ -159,7 +158,7 @@ Initialize(int argc, char **argv)
     machine = new Machine(debugUserProg);	// this must come first
     /**
      * Lab6:mup
-     * initialize pageMap and ASID
+     * initialize pageMap
      */
     int numpages = 32;
     pageMap = new BitMap(numpages);
@@ -193,7 +192,6 @@ Cleanup()
 #ifdef USER_PROGRAM
     delete machine;
     delete pageMap;
-    delete ASID;
 #endif
 
 #ifdef FILESYS_NEEDED

@@ -59,9 +59,10 @@ SwapHeader (NoffHeader *noffH)
 
 AddrSpace::AddrSpace(OpenFile *executable)
 {
-
+    //DEBUG('u',"ready to allocate user process mem\n");
+    //printf("ASID: %d\n",ASID);
     // allocate an asId
-    asId = *ASID++;
+    asId = ASID++;
     printf("spaceId:%d\n",asId);
 
     NoffHeader noffH;
@@ -213,4 +214,8 @@ void AddrSpace::Print() {
         printf("\t%d, \t\t%d\n", pageTable[i].virtualPage, pageTable[i].physicalPage);
     }
     printf("============================================\n\n");
+}
+
+int AddrSpace::getAsId() {
+    return asId;
 }
