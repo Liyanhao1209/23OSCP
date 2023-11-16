@@ -40,7 +40,7 @@ StartProcess(char *filename)
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
-    if(DebugIsEnabled('m')){
+    if(DebugIsEnabled('s')){
         printMainMemory(304,50);
     }
 

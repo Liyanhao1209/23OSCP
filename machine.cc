@@ -102,7 +102,7 @@ Machine::RaiseException(ExceptionType which, int badVAddr)
 {
     DEBUG('m', "Exception: %s\n", exceptionNames[which]);
 
-    if(DebugIsEnabled('m')){
+    if(DebugIsEnabled('r')){
         for(int i=0;i<NumTotalRegs;i++){
             printf("reg %d : %d ,",i,registers[i]);
         }

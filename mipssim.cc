@@ -40,7 +40,7 @@ Machine::Run()
     interrupt->setStatus(UserMode);
     for (;;) {
         OneInstruction(instr);
-        if(DebugIsEnabled('m')){
+        if(DebugIsEnabled('s')){
             printMainMemory(304,50);
         }
 	    interrupt->OneTick();

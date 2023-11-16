@@ -30,11 +30,12 @@
  * From contents for the ExceptionHandler:
  * And don't forget to increment the pc before returning. (Or else you'll
  * loop making the same system call forever!
+ * since the registers field is public,just get access to it!
  */
 void IncPc(){
-    machine->WriteRegister(PrevPCReg,machine->ReadRegister(PCReg));
-    machine->WriteRegister(PCReg, machine->ReadRegister(PCReg) + 4);
-    machine->WriteRegister(NextPCReg, machine->ReadRegister(NextPCReg) + 4);
+    machine->registers[PrevPCReg] =  machine->registers[PCReg];
+    machine->registers[PCReg] = machine->registers[NextPCReg];
+    machine->registers[NextPCReg] += 4;
 }
 
 //----------------------------------------------------------------------
@@ -77,6 +78,8 @@ ExceptionHandler(ExceptionType which)
         }
         else if(type == SC_PrintInt){
             interrupt->PrintInt();
+        }else if(type == SC_Fork){
+            interrupt->Fork();
         }
         // Note that the PC increases
         IncPc();

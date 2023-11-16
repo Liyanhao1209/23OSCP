@@ -167,8 +167,7 @@ Initialize(int argc, char **argv)
      * Lab6:mup
      * initialize pageMap
      */
-    int numpages = 32;
-    pageMap = new BitMap(numpages);
+    pageMap = new BitMap(NumPhysPages);
 #endif
 
 #ifdef FILESYS
