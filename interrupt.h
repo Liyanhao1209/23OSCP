@@ -109,6 +109,12 @@ class Interrupt {
       * syscall Fork(),for ExceptionHandler to invoke
       */
       void Fork();
+
+      /**
+       * Lab6:mup extension
+       * syscall UExec(),for ExceptionHandler to invoke
+       */
+       void UExec();
     
     void YieldOnReturn();		// cause a context switch on return 
 					// from an interrupt handler

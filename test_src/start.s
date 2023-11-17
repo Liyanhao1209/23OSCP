@@ -74,6 +74,14 @@ Exec:
 	j	$31
 	.end Exec
 
+    .globl UExec
+    .ent	UExec
+UExec:
+    addiu $2,$0,SC_UExec
+    syscall
+    j	$31
+    .end UExec
+
 	.globl Join
 	.ent	Join
 Join:

@@ -80,6 +80,8 @@ ExceptionHandler(ExceptionType which)
             interrupt->PrintInt();
         }else if(type == SC_Fork){
             interrupt->Fork();
+        }else if(type == SC_UExec){
+            interrupt->UExec();
         }
         // Note that the PC increases
         IncPc();

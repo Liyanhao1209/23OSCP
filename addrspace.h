@@ -42,6 +42,16 @@ class AddrSpace {
     // getter of asId
     int getAsId();
 
+    // getter of pageTable
+    TranslationEntry* getPT(){
+        return pageTable;
+    }
+
+    // getter of numPages
+    unsigned int getNumPages(){
+        return numPages;
+    }
+
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
 					// for now!

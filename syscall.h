@@ -34,6 +34,11 @@
  * define the PrintInt index here
  */
 #define SC_PrintInt 11
+/**
+ * Lab6:mup extension
+ * define the UExec index here
+ */
+#define SC_UExec 12
 
 #ifndef IN_ASM
 
@@ -69,8 +74,14 @@ typedef int SpaceId;
  * address space identifier
  */
 SpaceId Exec(char *name);
+
+/**
+ * Lab6:mup extension
+ * define the unix exec syscall here
+ */
+SpaceId UExec(char *name);
  
-/* Only return once the the user program "id" has finished.  
+/* Only return once the user program "id" has finished.
  * Return the exit status.
  */
 int Join(SpaceId id); 	
