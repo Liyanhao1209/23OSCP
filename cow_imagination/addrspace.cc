@@ -105,7 +105,7 @@ AddrSpace::AddrSpace(OpenFile *executable,Thread* owner)
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;
-        pageTable[i].ownerPid->Append(currentThread->getPID());
+        pageTable[i].ownerPid = currentThread->getPID();
     }
     Print();
     

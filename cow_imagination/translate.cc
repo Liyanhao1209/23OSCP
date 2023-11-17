@@ -271,7 +271,8 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
          * then the cur thread can modify the mem data on it's copy
          */
          // check if cur thread is writing the space which is not belong to it
-         bool flag = machine->pageTable[virtAddr/PageSize].ownerPid.Find(currentThread->getPID());
+         int oid = machine->pageTable[virtAddr/PageSize].ownerPid
+         bool flag = oid != SHARING && oid != currentThread->getPID();
          if(flag){
              TranslationEntry* oas = currentThread->space;
              // check if whether cur thread has its own addr space
@@ -290,7 +291,7 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
                      nPT[i].use = FALSE;
                      nPT[i].dirty = FALSE;
                      nPT[i].readOnly = FALSE;
-                     nPT[i].ownerPid->Append(currentThread->getPID());
+                     nPT[i].ownerPid = currentThread->getPID();
                  }
                  currentThread->space = new AddrSpace();// consume we support the constructor without arg
                  currentThread->space->setPT(nPT);

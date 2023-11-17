@@ -40,7 +40,7 @@ class TranslationEntry {
 			// page is referenced or modified.
     bool dirty;         // This bit is set by the hardware every time the
 			// page is modified.
-    List* ownerPid; // belong to which thread
+    int ownerPid; // belong to which thread
 };
 
 #endif
