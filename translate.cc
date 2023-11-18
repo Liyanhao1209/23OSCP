@@ -205,25 +205,10 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
 
 // calculate the virtual page number, and offset within the page,
 // from the virtual address
-    /**
-     * lyh srcR:
-     * vpn is short for virtual page number
-     */
     vpn = (unsigned) virtAddr / PageSize;
     offset = (unsigned) virtAddr % PageSize;
 
-    /**
-     * lyh srcR:
-     * Bad Code.Serious Coupling because of hard code.
-     * Since Profs from famous Colleges wrote shitty code,
-     * it's ok to write func like AllocateEachFHdr in Lab5 myself
-     * LOL :)
-     */
     if (tlb == NULL) {		// => page table => vpn is index into table
-        /**
-         * lyh srcR:
-         * = for indexing from 0
-         */
         if (vpn >= pageTableSize) {
             DEBUG('a', "virtual page # %d too large for page table size %d!\n",
                 virtAddr, pageTableSize);

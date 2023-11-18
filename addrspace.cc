@@ -109,7 +109,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
         pageTable[i].virtualPage = i;
         pageTable[i].physicalPage = IllegalPhysPage;
         pageTable[i].vMemPage = vmMap->Find();
-        pageTable[i].valid = TRUE;
+        pageTable[i].valid = FALSE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on a separate page, we could set its pages to be read-only
@@ -217,12 +217,15 @@ void AddrSpace::RestoreState()
 
 void AddrSpace::Print() {
     printf("page table dump: %d pages in total\n", numPages);
-    printf("============================================\n");
-    printf("\tVirtPage, \tPhysPage\n");
+    printf("====================================================================================================================================\n");
+    printf("\tVirtPage, \tPhysPage\tVMPage\t\tValid\t\tUse\t\tDirty\n");
     for (int i=0; i < (int)numPages; i++) {
-        printf("\t%d, \t\t%d\n", pageTable[i].virtualPage, pageTable[i].physicalPage);
+        printf("\t%d, \t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
+               pageTable[i].virtualPage, pageTable[i].physicalPage,pageTable[i].vMemPage,
+               pageTable[i].valid?1:0,pageTable[i].use?1:0,pageTable[i].dirty?1:0
+               );
     }
-    printf("============================================\n\n");
+    printf("====================================================================================================================================\n\n");
 }
 
 int AddrSpace::getAsId() {
