@@ -15,10 +15,12 @@
 
 #include "copyright.h"
 #include "filesys.h"
+#include "list.h"
 
 extern int ASID;
 
 #define UserStackSize		1024 	// increase this as necessary!
+#define maxInUse 5
 
 class AddrSpace {
   public:
@@ -51,6 +53,13 @@ class AddrSpace {
     unsigned int getNumPages(){
         return numPages;
     }
+
+    /**
+     * Lab7:vmem
+     * LRU replacement algorithm required
+     */
+     List* refStk;
+     int numInUse;
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

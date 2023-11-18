@@ -19,6 +19,7 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
+#include "swap.h"
 
 extern void printMainMemory(int sa,int size);
 
@@ -96,18 +97,18 @@ AddrSpace::AddrSpace(OpenFile *executable)
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         /**
-         * Lab6:mup
-         * the physicalPage should be an idle page on the page bit map
+         * Lab7:vmem
+         * pure demand paging
          */
         pageTable[i].virtualPage = i;
-        pageTable[i].physicalPage = pageMap->Find();
+        pageTable[i].physicalPage = IllegalPhysPage;
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
-        pageTable[i].readOnly = FALSE;  // if the code segment was entirely on
-                        // a separate page, we could set its
-                        // pages to be read-only
+        pageTable[i].readOnly = FALSE;  // if the code segment was entirely on a separate page, we could set its pages to be read-only
     }
+    numInUse = 0;
+    refStk = new List;
     Print();
     
 // zero out the entire address space, to zero the uninitialized data segment

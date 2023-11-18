@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "swap.h"
 
 /**
  * Lab6:mup
@@ -36,6 +37,15 @@ void IncPc(){
     machine->registers[PrevPCReg] =  machine->registers[PCReg];
     machine->registers[PCReg] = machine->registers[NextPCReg];
     machine->registers[NextPCReg] += 4;
+}
+
+/**
+ * Lab7: vmem
+ * load the page in the swap place to physical mem
+ * use func:swapPage or not depends there are still enough spaces for the refStk
+ */
+void loadPage(int vAddr){
+    
 }
 
 //----------------------------------------------------------------------
@@ -86,7 +96,15 @@ ExceptionHandler(ExceptionType which)
         // Note that the PC increases
         IncPc();
         return;
-    }else{
+    }
+    else if(which == PageFaultException){
+        /**
+         * Lab7:vmem
+         * page fault handle
+         */
+
+    }
+    else{
         printf("Unexpected user mode exception %d %d\n", which, type);
         ASSERT(FALSE);
     }
