@@ -40,9 +40,9 @@ Machine::Run()
     interrupt->setStatus(UserMode);
     for (;;) {
         OneInstruction(instr);
-        if(DebugIsEnabled('s')){
-            printMainMemory(304,50);
-        }
+//        if(DebugIsEnabled('s')){
+//            printMainMemory(304,50);
+//        }
 	    interrupt->OneTick();
 	    if (singleStep && (runUntilTime <= stats->totalTicks))
 	        Debugger();

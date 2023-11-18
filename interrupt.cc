@@ -433,6 +433,7 @@ Interrupt::Exec() {
 
 void
 Interrupt::PrintInt() {
+    DEBUG('s',"syscall PrintInt,arg: %d\n",machine->ReadRegister(4));
     // the arg of syscall is in reg 4
     printf("%d\n",machine->ReadRegister(4));
 }

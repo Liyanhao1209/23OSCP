@@ -40,9 +40,9 @@ StartProcess(char *filename)
 
     space->InitRegisters();		// set the initial register values
     space->RestoreState();		// load page table register
-    if(DebugIsEnabled('s')){
-        printMainMemory(304,50);
-    }
+//    if(DebugIsEnabled('s')){
+//        printMainMemory(304,50);
+//    }
 
     DEBUG('u',"ready to start user process\n");
     machine->Run();			// jump to the user program

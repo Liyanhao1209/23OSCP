@@ -70,7 +70,7 @@ void loadPage(int vAddr){
     }
     // remember to add the new ref into the refStk
     refPush(&logPage);
-    if(DebugIsEnabled('m')){
+    if(DebugIsEnabled('m')||DebugIsEnabled('a')){
         cas->Print();
     }
 }
