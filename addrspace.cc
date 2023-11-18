@@ -120,7 +120,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     
     // zero out the entire address space, to zero the uninitialized data segment
     // and the stack segment
-    bzero(machine->mainMemory, size);
+    //bzero(machine->mainMemory, size);
 
     /**
      * Lab7:vmem
@@ -131,13 +131,13 @@ AddrSpace::AddrSpace(OpenFile *executable)
      char buf[size];
      bzero(buf,size);
     if (noffH.code.size > 0) {
-        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
+        DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
 			noffH.code.virtualAddr, noffH.code.size);
         executable->ReadAt(&(buf[noffH.code.virtualAddr]),
 			noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0) {
-        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
+        DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
 			noffH.initData.virtualAddr, noffH.initData.size);
         executable->ReadAt(&(buf[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
@@ -146,8 +146,12 @@ AddrSpace::AddrSpace(OpenFile *executable)
     for(int i=0;i<numPages;i++){
         vmWrite(pageTable[i].vMemPage,&buf[i*PageSize]);
     }
-    if(DebugIsEnabled('m')){
+    if(false){
         // for debugging the contents we wrote into the swap space
+        // if you want to test this
+        // plz change the code above to allocate some phys pages to this as
+        // such as:pageTable[i].physicalPage = pageMap->Find();
+        //
         vmMap->Print();
         int pageStart,frameStart,pOffset;
         if (noffH.code.size > 0) {

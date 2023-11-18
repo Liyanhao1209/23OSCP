@@ -33,7 +33,15 @@ int vm2Mem(int vAddr,TranslationEntry* vmpt,int desPos){
 
     // step 2: Fetch the page in the swap space
     char buf[PageSize];
+    DEBUG('v',"target page number is : %d\n",tPage);
     vmFetch(tPage,buf);
+    if(DebugIsEnabled('v')){
+        printf("buf content: \n");
+        for(int i=0;i<PageSize;i++){
+            printf("%c",buf[i]);
+        }
+        printf("\n");
+    }
 
     // step 3: rewrite the data in the buffer back to the physical main mem
     physMemCopy(buf,machine->mainMemory,PageSize,0,desPos);

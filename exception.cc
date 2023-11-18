@@ -57,9 +57,10 @@ void loadPage(int vAddr){
         // find an idle page on the page map
         int physPage = pageMap->Find();
         // fetch the corresponding page of vAddr on the swap disk to this phys page
-        int logPage = vm2Mem(vAddr,vmpt,physPage);
+        int logPage = vm2Mem(vAddr,vmpt,physPage*PageSize);
         // user prog's page-in-use inc
         cas->numInUse++;
+        DEBUG('u',"current user prog frame number-in-use: %d\n",cas->numInUse);
         // update the pt
         vmpt[logPage].physicalPage = physPage;
         // now the logPage is in the mem
@@ -128,6 +129,7 @@ ExceptionHandler(ExceptionType which)
          * Lab7:vmem
          * page fault handle
          */
+         DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
         loadPage(machine->registers[BadVAddrReg]);
         // there's no need to IncPc,since we should restart the instruction
         // just keep the PCs as where they stay now
