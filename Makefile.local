@@ -17,7 +17,9 @@ CCFILES += addrspace.cc\
 	mipssim.cc\
 	translate.cc\
 	swap.cc\
-	replace.cc
+	replace.cc\
+	synchdisk.cc\
+	disk.cc
 
 INCPATH = -I- -I../lab7 -I../bin -I../threads -I../machine -I../userprog -I../filesys
 

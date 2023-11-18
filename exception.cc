@@ -25,6 +25,7 @@
 #include "system.h"
 #include "syscall.h"
 #include "swap.h"
+#include "replace.h"
 #include "addrspace.h"
 
 /**
@@ -49,7 +50,7 @@ void loadPage(int vAddr){
     // step1: check if there is enough space for the refStk
     AddrSpace* cas = currentThread->space;
     int logPage;
-    if(cas.numInUse < maxInUse){
+    if(cas->numInUse < maxInUse){
         TranslationEntry* vmpt = machine->pageTable;
         // make sure there are enough pages on the page map
         ASSERT(pageMap->NumClear()>0);
@@ -58,16 +59,16 @@ void loadPage(int vAddr){
         // fetch the corresponding page of vAddr on the swap disk to this phys page
         int logPage = vm2Mem(vAddr,vmpt,physPage);
         // user prog's page-in-use inc
-        numInUse++;
+        cas->numInUse++;
         // update the pt
         vmpt[logPage].physicalPage = physPage;
         // now the logPage is in the mem
-        vmpt[logPage].valid = True;
+        vmpt[logPage].valid = true;
     }else{
         logPage = swapPage(vAddr);
     }
     // remember to add the new ref into the refStk
-    refPush(logPage);
+    refPush(&logPage);
 }
 
 //----------------------------------------------------------------------

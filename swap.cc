@@ -61,9 +61,9 @@ int swapPage(int vAddr){
     int logPage = vm2Mem(vAddr,vmpt,vmpt[rPage].physicalPage*PageSize);
 
     // step 3: set the valid bits of both rPage and logPage,also the dirty bit
-    vmpt[rPage].valid = False;
-    vmpt[logPage].valid = True;
-    vmpt[rPage].dirty = False;
+    vmpt[rPage].valid = false;
+    vmpt[logPage].valid = true;
+    vmpt[rPage].dirty = false;
 
     // step 4: update the nachos virtual mem page table
     vmpt[logPage].physicalPage = vmpt[rPage].physicalPage;

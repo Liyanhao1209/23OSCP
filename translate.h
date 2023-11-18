@@ -35,7 +35,7 @@ class TranslationEntry {
      * Lab7:vmem
      * where to find this page in the virtual memory
      */
-    int vMemPage
+    int vMemPage;
 
     bool valid;         // If this bit is set, the translation is ignored.(In other words, the entry hasn't been initialized.)
 

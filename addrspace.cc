@@ -144,7 +144,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
     }
     // load the buf to the swap disk
     for(int i=0;i<numPages;i++){
-        vmWrite(pageTable[i].vMemPage,buf[i*PageSize]);
+        vmWrite(pageTable[i].vMemPage,&buf[i*PageSize]);
     }
 }
 
