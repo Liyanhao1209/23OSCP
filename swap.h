@@ -16,8 +16,12 @@ extern void vmFetch(int secNo, char* data);
 // Write a page into the virtual mem with a specific sector num
 extern void vmWrite(int secNo, char* data);
 
+extern void dirty2vm(int dirtyPage,TranslationEntry* vmpt);
+
+extern int vm2Mem(int vAddr,TranslationEntry* vmpt,int desPos);
+
 // only occurs when the user prog ran out of its allocated frames(5)
 // depending on the page-replacement algorithm
-extern void swapPage(int vAddr);
+extern int swapPage(int vAddr);
 
 #endif //SWAP_H

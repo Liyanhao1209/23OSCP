@@ -45,6 +45,7 @@ SwapHeader (NoffHeader *noffH)
 	noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
 }
 
+
 //----------------------------------------------------------------------
 // AddrSpace::AddrSpace
 // 	Create an address space to run a user program.
@@ -90,10 +91,15 @@ AddrSpace::AddrSpace(OpenFile *executable)
      * idle pages on the page bit map
      */
     ASSERT((int)numPages <= pageMap->NumClear());
+    /**
+     * Lab7:vmem
+     * make sure there are enough space on the swap disk
+     */
+    ASSERT((int)numPages <= vmMap->NumClear());
 
     DEBUG('a', "Initializing address space, num pages %d, size %d\n", 
 					numPages, size);
-// first, set up the translation 
+    // first, set up the translation
     pageTable = new TranslationEntry[numPages];
     for (i = 0; i < numPages; i++) {
         /**
@@ -102,6 +108,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
          */
         pageTable[i].virtualPage = i;
         pageTable[i].physicalPage = IllegalPhysPage;
+        pageTable[i].vMemPage = vmMap->Find();
         pageTable[i].valid = TRUE;
         pageTable[i].use = FALSE;
         pageTable[i].dirty = FALSE;
@@ -111,35 +118,33 @@ AddrSpace::AddrSpace(OpenFile *executable)
     refStk = new List;
     Print();
     
-// zero out the entire address space, to zero the uninitialized data segment
-// and the stack segment
+    // zero out the entire address space, to zero the uninitialized data segment
+    // and the stack segment
     bzero(machine->mainMemory, size);
 
-    int pageStart,frameStart,pOffset;
-// then, copy in the code and data segments into memory
+    /**
+     * Lab7:vmem
+     * Initially we load the noff file to the swap disk
+     * when there's a page fault
+     * fetch the data on the disk to main mem
+     */
+     char buf[size];
+     bzero(buf,size);
     if (noffH.code.size > 0) {
         DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", 
 			noffH.code.virtualAddr, noffH.code.size);
-        /**
-         * Lab6:mup
-         * calculate the demanding number of pages
-         * check the page table
-         * then load the exe file's segment to the corresponding mem addr
-         */
-         pageStart = noffH.code.virtualAddr/PageSize;
-         pOffset = noffH.code.virtualAddr % PageSize;
-         frameStart = pageTable[pageStart].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
+        executable->ReadAt(&(buf[noffH.code.virtualAddr]),
 			noffH.code.size, noffH.code.inFileAddr);
     }
     if (noffH.initData.size > 0) {
         DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", 
 			noffH.initData.virtualAddr, noffH.initData.size);
-        pageStart = noffH.initData.virtualAddr/PageSize;
-        pOffset = noffH.initData.virtualAddr % PageSize;
-        frameStart = pageTable[pageStart].physicalPage;
-        executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
+        executable->ReadAt(&(buf[noffH.initData.virtualAddr]),
 			noffH.initData.size, noffH.initData.inFileAddr);
+    }
+    // load the buf to the swap disk
+    for(int i=0;i<numPages;i++){
+        vmWrite(pageTable[i].vMemPage,buf[i*PageSize]);
     }
 }
 

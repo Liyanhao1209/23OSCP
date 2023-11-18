@@ -25,6 +25,7 @@
 #include "system.h"
 #include "syscall.h"
 #include "swap.h"
+#include "addrspace.h"
 
 /**
  * Lab6:mup
@@ -45,7 +46,28 @@ void IncPc(){
  * use func:swapPage or not depends there are still enough spaces for the refStk
  */
 void loadPage(int vAddr){
-    
+    // step1: check if there is enough space for the refStk
+    AddrSpace* cas = currentThread->space;
+    int logPage;
+    if(cas.numInUse < maxInUse){
+        TranslationEntry* vmpt = machine->pageTable;
+        // make sure there are enough pages on the page map
+        ASSERT(pageMap->NumClear()>0);
+        // find an idle page on the page map
+        int physPage = pageMap->Find();
+        // fetch the corresponding page of vAddr on the swap disk to this phys page
+        int logPage = vm2Mem(vAddr,vmpt,physPage);
+        // user prog's page-in-use inc
+        numInUse++;
+        // update the pt
+        vmpt[logPage].physicalPage = physPage;
+        // now the logPage is in the mem
+        vmpt[logPage].valid = True;
+    }else{
+        logPage = swapPage(vAddr);
+    }
+    // remember to add the new ref into the refStk
+    refPush(logPage);
 }
 
 //----------------------------------------------------------------------
@@ -102,7 +124,9 @@ ExceptionHandler(ExceptionType which)
          * Lab7:vmem
          * page fault handle
          */
-
+        loadPage(machine->registers[BadVAddrReg]);
+        // there's no need to IncPc,since we should restart the instruction
+        // just keep the PCs as where they stay now
     }
     else{
         printf("Unexpected user mode exception %d %d\n", which, type);
