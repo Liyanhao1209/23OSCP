@@ -146,6 +146,34 @@ AddrSpace::AddrSpace(OpenFile *executable)
     for(int i=0;i<numPages;i++){
         vmWrite(pageTable[i].vMemPage,&buf[i*PageSize]);
     }
+    if(DebugIsEnabled('m')){
+        // for debugging the contents we wrote into the swap space
+        vmMap->Print();
+        int pageStart,frameStart,pOffset;
+        if (noffH.code.size > 0) {
+            pageStart = noffH.code.virtualAddr/PageSize;
+            pOffset = noffH.code.virtualAddr % PageSize;
+            frameStart = pageTable[pageStart].physicalPage;
+            executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
+                               noffH.code.size, noffH.code.inFileAddr);
+        }
+        if (noffH.initData.size > 0) {
+            pageStart = noffH.initData.virtualAddr/PageSize;
+            pOffset = noffH.initData.virtualAddr % PageSize;
+            frameStart = pageTable[pageStart].physicalPage;
+            executable->ReadAt(&(machine->mainMemory[frameStart*PageSize+pOffset]),
+                               noffH.initData.size, noffH.initData.inFileAddr);
+        }
+        pageStart = noffH.code.virtualAddr/PageSize;
+        pOffset = noffH.code.virtualAddr % PageSize;
+        frameStart = pageTable[pageStart].physicalPage;
+        printf("noff file size:%d\n",size);
+        for(int i=0;i<size;i++){
+            bool flag = buf[i]==machine->mainMemory[frameStart*PageSize+pOffset+i];
+            printf("%d",flag?1:0);
+        }
+        printf("\n");
+    }
 }
 
 //----------------------------------------------------------------------
