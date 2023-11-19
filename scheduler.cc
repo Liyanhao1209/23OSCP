@@ -53,7 +53,7 @@ Scheduler::~Scheduler()
 void
 Scheduler::ReadyToRun (Thread *thread)
 {
-    DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
+    //DEBUG('t', "Putting thread %s on ready list.\n", thread->getName());
 
     thread->setStatus(READY);
     readyList->Prepend((void *)thread);
@@ -95,7 +95,7 @@ Scheduler::Run (Thread *nextThread)
 #ifdef USER_PROGRAM			// ignore until running user programs 
     if (currentThread->space != NULL) {	// if this thread is a user program,
         currentThread->SaveUserState(); // save the user's CPU registers
-	currentThread->space->SaveState();
+	    currentThread->space->SaveState();
     }
 #endif
     
@@ -115,7 +115,7 @@ Scheduler::Run (Thread *nextThread)
 
     SWITCH(oldThread, nextThread);
     
-    DEBUG('t', "Now in thread \"%s\"\n", currentThread->getName());
+    //DEBUG('t', "Now in thread \"%s\"\n", currentThread->getName());
 
     // If the old thread gave up the processor because it was finishing,
     // we need to delete its carcass.  Note we cannot delete the thread

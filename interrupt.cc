@@ -372,6 +372,33 @@ Interrupt::DumpState()
 
 // dummy arg,useless
 void userFunc(_int dummy){
+    /**
+     * Lab7:vmem
+     * patch for lab6
+     * when we yield the current thread
+     * it save the user registers before context switch
+     * Also,we init the regs by using current thread's addr space
+     * thus,we save the wrong state to cur thread's addr space
+     * so it's necessary to init the regs by using new thread's addr space
+     * after the context switching
+     */
+    AddrSpace* as = currentThread->space;
+    // init the vm registers and restore the page table
+    as->InitRegisters();
+    as->RestoreState();
+    // run the user prog
+    machine->Run();
+    // never returns
+    ASSERT(FALSE);
+}
+
+void userFuncForSameAS(_int dummy){
+    /**
+     * Lab7:vmem
+     * patch for lab6
+     * since syscall Fork() use the same addr space
+     * we should not init the regs
+     */
     // run the user prog
     machine->Run();
     // never returns
@@ -413,9 +440,7 @@ Interrupt::Exec() {
 
      // allocate the page table for exe
      AddrSpace* as = new AddrSpace(exe);
-     // init the vm registers and restore the page table
-     as->InitRegisters();
-     as->RestoreState();
+
      // new kernel thread for executing user thread
      Thread* tfu = new Thread(filename);
      // load the as to tfu
@@ -428,9 +453,9 @@ Interrupt::Exec() {
      // we should write the as id back to the ret reg
      machine->WriteRegister(2,as->getAsId());
      // yield currentThread for executing the thread for user
-     //currentThread->Yield();
+     currentThread->Yield();
 
-     currentThread->Finish();
+     //currentThread->Finish();
 }
 
 void
@@ -462,7 +487,7 @@ Interrupt::Fork(){
      */
     Thread* tfu = new Thread(currentThread->getName());
     tfu->space = currentThread->space;
-    tfu->Fork(userFunc,0);
+    tfu->Fork(userFuncForSameAS,0);
 
     // LET'S FXXKING GO!
     currentThread->Yield();
@@ -515,11 +540,9 @@ Interrupt::UExec() {
             pageMap->Clear(cpt[i].physicalPage);
         }
     }
+
     // reallocate the page table for exe
     AddrSpace* as = new AddrSpace(exe);
-    // init the vm registers and restore the page table
-    as->InitRegisters();
-    as->RestoreState();
     // new kernel thread for executing user thread
     Thread* tfu = new Thread(filename);
     // load the as to tfu

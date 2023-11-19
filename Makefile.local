@@ -19,7 +19,8 @@ CCFILES += addrspace.cc\
 	swap.cc\
 	replace.cc\
 	synchdisk.cc\
-	disk.cc
+	disk.cc\
+	thread.cc
 
 INCPATH = -I- -I../lab7 -I../bin -I../threads -I../machine -I../userprog -I../filesys
 
