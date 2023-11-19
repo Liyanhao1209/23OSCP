@@ -268,7 +268,7 @@ Interrupt::Schedule(VoidFunctionPtr handler, _int arg, int fromNow, IntType type
     int when = stats->totalTicks + fromNow;
     PendingInterrupt *toOccur = new PendingInterrupt(handler, arg, when, type);
 
-    DEBUG('i', "Scheduling interrupt handler the %s at time = %d\n", 
+    DEBUG('v', "Scheduling interrupt handler the %s at time = %d\n",
 					intTypeNames[type], when);
     ASSERT(fromNow > 0);
 
@@ -460,7 +460,7 @@ Interrupt::Exec() {
 
 void
 Interrupt::PrintInt() {
-    DEBUG('s',"syscall PrintInt,arg: %d\n",machine->ReadRegister(4));
+    //DEBUG('s',"syscall PrintInt,arg: %d\n",machine->ReadRegister(4));
     // the arg of syscall is in reg 4
     printf("%d\n",machine->ReadRegister(4));
 }

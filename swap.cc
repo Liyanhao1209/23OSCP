@@ -2,9 +2,11 @@
 
 
 void physMemCopy(char* src,char* dest,int size,int sPos,int dPos){
+    //printf("physMemCopy start...\n");
     for(int i=0;i<size;i++){
         dest[dPos+i] = src[sPos+i];
     }
+    //printf("physMemCopy end...\n");
 }
 
 void vmFetch(int secNo,char* data){
@@ -17,6 +19,7 @@ void vmWrite(int secNo,char* data){
 
 // write the dirty page back to the swap space
 void dirty2vm(int dirtyPage,TranslationEntry* vmpt){
+    printf("dirty page: %d write back\n",dirtyPage);
     char dirtyData[PageSize];
     // copy the dirty data from main mem
     physMemCopy(machine->mainMemory,dirtyData,PageSize,vmpt[dirtyPage].physicalPage*PageSize,0);
@@ -35,7 +38,6 @@ int vm2Mem(int vAddr,TranslationEntry* vmpt,int desPos){
     char buf[PageSize];
     DEBUG('v',"the page caused page fault is : %d,target vmem page number is : %d\n",logPage,tPage);
     vmFetch(tPage,buf);
-    //printf("can i speak?\n");
 //    if(DebugIsEnabled('v')){
 //        printf("buf content: \n");
 //        for(int i=0;i<PageSize;i++){
@@ -61,6 +63,7 @@ int swapPage(int vAddr){
     // step 1: find a victim by replacement algorithm
     int rPage; // rPage is short for replaced page
     rPage = calVictim();
+    DEBUG('s',"swap victim: %d\n",rPage);
 
     // step 2: check if victim is dirty(need to write back)
     if(vmpt[rPage].dirty){
@@ -77,6 +80,8 @@ int swapPage(int vAddr){
     // step 4: update the nachos virtual mem page table
     vmpt[logPage].physicalPage = vmpt[rPage].physicalPage;
     vmpt[rPage].physicalPage = IllegalPhysPage;
+
+    printf("Swap page %d out, demand page %d in frame(%d)\n",rPage,logPage,vmpt[logPage].physicalPage);
 
     return logPage;
 }

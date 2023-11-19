@@ -115,7 +115,11 @@ AddrSpace::AddrSpace(OpenFile *executable)
         pageTable[i].readOnly = FALSE;  // if the code segment was entirely on a separate page, we could set its pages to be read-only
     }
     numInUse = 0;
-    refStk = new List;
+    refStk = new int[maxInUse];
+    for(int i=0;i<maxInUse;i++){
+        refStk[i] = -1;
+    }
+    stkSize = 0;
     Print();
     
     // zero out the entire address space, to zero the uninitialized data segment
@@ -249,7 +253,7 @@ void AddrSpace::RestoreState()
 }
 
 void AddrSpace::Print() {
-    printf("page table dump: %d pages in total\n", numPages);
+    printf("SpaceId: %d, Page table dump: %d pages in total\n", asId,numPages);
     printf("====================================================================================================================================\n");
     printf("\tVirtPage, \tPhysPage\tVMPage\t\tValid\t\tUse\t\tDirty\n");
     for (int i=0; i < (int)numPages; i++) {
@@ -263,4 +267,31 @@ void AddrSpace::Print() {
 
 int AddrSpace::getAsId() {
     return asId;
+}
+
+/**
+ * Lab7:vmem
+ * @param refPage virtual/logical page need to be updated when there's no page fault exception
+ */
+void
+AddrSpace::updateRefStk(int refPage) {
+    int target;
+    for(target=0;target<stkSize;target++){
+        if(refStk[target]==refPage){
+            break;
+        }
+    }
+    ASSERT(refStk[target]==refPage);
+    int tPage = refStk[target];
+    for(int i=target+1;i<stkSize;i++){
+        refStk[i-1] = refStk[i];
+    }
+    refStk[stkSize-1]=tPage;
+    if(DebugIsEnabled('r')){
+        printf("update ref stack state: ");
+        for(int i=0;i<stkSize;i++){
+            printf("%d ",refStk[i]);
+        }
+        printf("\n");
+    }
 }

@@ -60,19 +60,20 @@ void loadPage(int vAddr){
         int physPage = pageMap->Find();
         DEBUG('u',"phys page: %d allocated to cur addr space: %d\n",physPage,cas->getAsId());
         // fetch the corresponding page of vAddr on the swap disk to this phys page
-        int logPage = vm2Mem(vAddr,vmpt,physPage*PageSize);
+        logPage = vm2Mem(vAddr,vmpt,physPage*PageSize);
         // user prog's page-in-use inc
         cas->numInUse++;
         // update the pt
         vmpt[logPage].physicalPage = physPage;
         // now the logPage is in the mem
         vmpt[logPage].valid = true;
+        printf("Demand page %d in(frame %d)\n",logPage,physPage);
     }else{
         logPage = swapPage(vAddr);
     }
     // remember to add the new ref into the refStk
-    refPush(&logPage);
-    if(DebugIsEnabled('m')||DebugIsEnabled('a')){
+    refPush(logPage);
+    if(true){ //DebugIsEnabled('m')||DebugIsEnabled('a')
         cas->Print();
     }
 }
@@ -131,7 +132,7 @@ ExceptionHandler(ExceptionType which)
          * Lab7:vmem
          * page fault handle
          */
-        DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
+        //DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
         loadPage(machine->registers[BadVAddrReg]);
         // there's no need to IncPc,since we should restart the instruction
         // just keep the PCs as where they stay now

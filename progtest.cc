@@ -25,6 +25,10 @@ extern void printMainMemory(int sa,int size);
 void
 StartProcess(char *filename)
 {
+    printf("User program: %s, SpaceId: %d, Memory size: %u\n", \
+        filename, ASID, NumPhysPages*PageSize);
+    printf("Max frames per user process: %d, Swap file: %s, Page replacement algorithm: %s\n", \
+        maxInUse, "SWAP", "LRU");
     DEBUG('u',"Starting user process...\n");
     OpenFile *executable = fileSystem->Open(filename);
     AddrSpace *space;

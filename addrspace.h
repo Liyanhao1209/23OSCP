@@ -58,8 +58,11 @@ class AddrSpace {
      * Lab7:vmem
      * LRU replacement algorithm required
      */
-     List* refStk;
+     int* refStk;
+     int stkSize;
      int numInUse;
+
+     void updateRefStk(int refPage);
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation

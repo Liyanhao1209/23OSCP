@@ -1,19 +1,23 @@
 #include "replace.h"
 
-void refPush(int* ref){
-    currentThread->space->refStk->Append((void*)ref);
+void refPush(int ref){
+    DEBUG('r',"new ref: %d\n",ref);
+    AddrSpace* as = currentThread->space;
+    // still enough space
+    as->refStk[as->stkSize++] = ref;
 }
 
-int* refPop(){
-    return (int*)currentThread->space->refStk->Remove();
+int refPop(){
+    AddrSpace* as = currentThread->space;
+    int ret = as->refStk[0];
+    // Each element moves forward
+    for(int i=1;i<as->stkSize;i++){
+        as->refStk[i-1] = as->refStk[i];
+    }
+    as->stkSize--;
+    return ret;
 }
 
 int calVictim(){
-    // step 1: get the user prog ref stack
-    List* rs = currentThread->space->refStk;
-
-    // step 2: pop the ele at the stk bottom
-    int* ret = refPop();
-
-    return *ret;
+    return refPop();
 }

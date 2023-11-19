@@ -248,14 +248,17 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
     entry->use = TRUE;		// set the use, dirty bits
     if (writing)
         entry->dirty = TRUE;
-    /**
-     * lyh srcR:
-     * regular trick by the author:
-     * when Multi ret vals,
-     * append the ret vals' ptrs to the input args
-     */
     *physAddr = pageFrame * PageSize + offset;
     ASSERT((*physAddr >= 0) && ((*physAddr + size) <= MemorySize));
     DEBUG('a', "phys addr = 0x%x\n", *physAddr);
+
+    /**
+     * Lab7:vmem
+     * we should update the LRU stack when some page is needed
+     * don't worry,the page fault trap has been handled
+     * thus we could just care about updating the existing pages
+     */
+    currentThread->space->updateRefStk(vpn);
+
     return NoException;
 }

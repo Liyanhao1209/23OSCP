@@ -5,9 +5,9 @@
 #include "list.h"
 
 // push/pop new/old refs in the refStk
-extern void refPush(int* ref);
+extern void refPush(int ref);
 
-extern void refPop(int ref);
+extern int refPop();
 
 // calculate which page is currently in main memory to replace
 extern int calVictim();
