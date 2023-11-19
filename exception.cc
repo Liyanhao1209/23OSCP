@@ -49,18 +49,20 @@ void IncPc(){
 void loadPage(int vAddr){
     // step1: check if there is enough space for the refStk
     AddrSpace* cas = currentThread->space;
+    DEBUG('a',"current addr space id: %d\n",cas->getAsId());
     int logPage;
+    DEBUG('u',"current user prog frame number-in-use: %d\n",cas->numInUse);
     if(cas->numInUse < maxInUse){
         TranslationEntry* vmpt = machine->pageTable;
         // make sure there are enough pages on the page map
         ASSERT(pageMap->NumClear()>0);
         // find an idle page on the page map
         int physPage = pageMap->Find();
+        DEBUG('u',"phys page: %d allocated to cur addr space: %d\n",physPage,cas->getAsId());
         // fetch the corresponding page of vAddr on the swap disk to this phys page
         int logPage = vm2Mem(vAddr,vmpt,physPage*PageSize);
         // user prog's page-in-use inc
         cas->numInUse++;
-        DEBUG('u',"current user prog frame number-in-use: %d\n",cas->numInUse);
         // update the pt
         vmpt[logPage].physicalPage = physPage;
         // now the logPage is in the mem
@@ -129,7 +131,7 @@ ExceptionHandler(ExceptionType which)
          * Lab7:vmem
          * page fault handle
          */
-         DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
+        DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
         loadPage(machine->registers[BadVAddrReg]);
         // there's no need to IncPc,since we should restart the instruction
         // just keep the PCs as where they stay now

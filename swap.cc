@@ -33,8 +33,9 @@ int vm2Mem(int vAddr,TranslationEntry* vmpt,int desPos){
 
     // step 2: Fetch the page in the swap space
     char buf[PageSize];
-    DEBUG('v',"target page number is : %d\n",tPage);
+    DEBUG('v',"the page caused page fault is : %d,target vmem page number is : %d\n",logPage,tPage);
     vmFetch(tPage,buf);
+    //printf("can i speak?\n");
 //    if(DebugIsEnabled('v')){
 //        printf("buf content: \n");
 //        for(int i=0;i<PageSize;i++){
@@ -46,7 +47,6 @@ int vm2Mem(int vAddr,TranslationEntry* vmpt,int desPos){
     // step 3: rewrite the data in the buffer back to the physical main mem
     physMemCopy(buf,machine->mainMemory,PageSize,0,desPos);
 
-    DEBUG('v',"the page caused page fault is : %d\n",logPage);
     // return the logical page of vAddr
     return logPage;
 }

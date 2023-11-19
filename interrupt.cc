@@ -428,7 +428,9 @@ Interrupt::Exec() {
      // we should write the as id back to the ret reg
      machine->WriteRegister(2,as->getAsId());
      // yield currentThread for executing the thread for user
-     currentThread->Yield();
+     //currentThread->Yield();
+
+     currentThread->Finish();
 }
 
 void
@@ -509,7 +511,9 @@ Interrupt::UExec() {
     // deallocate the pages on this page table
     unsigned int np = currentThread->space->getNumPages();
     for(int i=0;i<np;i++){
-        pageMap->Clear(cpt[i].physicalPage);
+        if(cpt[i].physicalPage>=0){
+            pageMap->Clear(cpt[i].physicalPage);
+        }
     }
     // reallocate the page table for exe
     AddrSpace* as = new AddrSpace(exe);
