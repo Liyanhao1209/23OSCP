@@ -25,6 +25,7 @@ void dirty2vm(int dirtyPage,TranslationEntry* vmpt){
     physMemCopy(machine->mainMemory,dirtyData,PageSize,vmpt[dirtyPage].physicalPage*PageSize,0);
     // write it back to the swap disk
     vmWrite(vmpt[dirtyPage].vMemPage,dirtyData);
+    stats->numVictimWriteBack++;
 }
 
 

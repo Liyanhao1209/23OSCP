@@ -134,6 +134,7 @@ ExceptionHandler(ExceptionType which)
          */
         //DEBUG('r',"bad vAddr: %d\n",machine->registers[BadVAddrReg]);
         loadPage(machine->registers[BadVAddrReg]);
+        stats->numPageFaults++;
         // there's no need to IncPc,since we should restart the instruction
         // just keep the PCs as where they stay now
     }
