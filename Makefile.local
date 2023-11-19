@@ -1,0 +1,51 @@
+ifndef MAKEFILE_THREADS_LOCAL
+define MAKEFILE_THREADS_LOCAL
+yes
+endef
+
+
+SFILES = switch$(HOST_LINUX).s
+
+
+# If you add new files, you need to add them to CCFILES,
+# you can define CFILES if you choose to make .c files instead.
+
+CCFILES = main.cc\
+	list.cc\
+	scheduler.cc\
+	synch.cc\
+	synchlist.cc\
+	system.cc\
+	thread.cc\
+	utility.cc\
+	threadtest.cc\
+	interrupt.cc\
+	sysdep.cc\
+	stats.cc\
+	timer.cc
+
+INCPATH += -I- -I../lab2 -I../threads -I../machine
+
+# we should define 3 things
+# first,if we use time slice
+# second,which CPU scheduling strategy should we choose
+# including the details
+# third,if the CPU scheduling is preemptive
+
+
+# first
+# -DTIMESLICE decide if we should dispatch time slices for current thread 
+
+# second
+# 2.1
+# -DPRIORITY use priority strategy
+# -DAGING after you define we do the CPU scheduling with priority,you should point out whether we use static or dynamic policy.Default is static
+# 2.2
+# -DROUNDROBIN use round robin strategy
+
+#  third
+# -DPREEMPTIVE the default sheduling policy is NONPREEMPTIVE
+
+DEFINES +=  -DPRIORITY -DAGING  -DTIMESLICE
+
+endif # MAKEFILE_THREADS_LOCAL
