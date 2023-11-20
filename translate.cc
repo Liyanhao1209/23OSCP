@@ -259,6 +259,14 @@ Machine::Translate(int virtAddr, int* physAddr, int size, bool writing)
      * thus we could just care about updating the existing pages
      */
     currentThread->space->updateRefStk(vpn);
+    /**
+     * Lab7:vmem
+     * for opt evaluation
+     */
+#ifdef OPT
+    currentThread->space->updateRefStr(vpn);
+#endif
+
 
     return NoException;
 }

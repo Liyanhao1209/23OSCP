@@ -243,6 +243,9 @@ Interrupt::Halt()
 {
     printf("Machine halting!\n\n");
     stats->Print();
+#ifdef OPT
+    printf("OPT Page faults: %d\n",currentThread->space->calOPTPf());
+#endif
     Cleanup();     // Never returns.
 }
 

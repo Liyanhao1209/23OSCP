@@ -120,6 +120,13 @@ AddrSpace::AddrSpace(OpenFile *executable)
         refStk[i] = -1;
     }
     stkSize = 0;
+
+#ifdef OPT
+    refString = new int[maxInUse];
+    refStrLen = 0;
+    maxLen = maxInUse;
+    lastVPN = -1;
+#endif
     Print();
     
     // zero out the entire address space, to zero the uninitialized data segment
@@ -191,6 +198,17 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
+    // free the bit map
+    for(int i=0;i<numPages;i++){
+        if(pageTable[i].valid){
+            pageMap->Clear(pageTable[i].physicalPage);
+        }
+        vmMap->Clear(pageTable[i].vMemPage);
+    }
+    delete[] refStk;
+#ifdef OPT
+    delete[] refString;
+#endif
    delete [] pageTable;
 }
 
@@ -295,3 +313,99 @@ AddrSpace::updateRefStk(int refPage) {
         printf("\n");
     }
 }
+
+#ifdef OPT
+/**
+* Lab7:vmem
+ * update ref str for OPT algorithm evaluation
+*/
+void
+AddrSpace::updateRefStr(int refPage) {
+    // unnecessary to record two same contiguous refs
+    // if the first one has been loaded to mem
+    // then the second one also did
+    if(lastVPN == refPage){
+        return;
+    }
+    lastVPN = refPage;
+    //DEBUG('A',"refStrLen: %d\n",refStrLen);
+    // if there's still enough space in the refStr arr
+    // just use it
+    if(refStrLen<maxLen){
+        refString[refStrLen++] = refPage;
+        return;
+    }
+    // Otherwise,create a new arr to replace the cur one
+    maxLen*=2;
+    int* narr = new int[maxLen];
+    for(int i=0;i<refStrLen;i++){
+        narr[i] = refString[i];
+    }
+    narr[refStrLen++] = refPage;
+    delete[] refString;
+    refString = narr;
+}
+
+/**
+* Lab7:vmem
+ * calculate page faults and write back for OPT algorithm
+*/
+int
+AddrSpace::calOPTPf() {
+    if(DebugIsEnabled('A')){
+        printf("len: %d,ref str: ",refStrLen);
+//        for(int i=0;i<refStrLen;i++){
+//            printf("%d ",refString[i]);
+//        }
+//        printf("\n");
+    }
+    int ans = 0;
+    int opt[maxInUse];
+    int optSize = 0;
+    for(int i=0;i<maxInUse;i++){
+        opt[i] = -1; // vpn will never be -1
+    }
+    int victim,max,cmp;
+    for(int i=0;i<refStrLen;i++){
+        // check if vpn is already in the mem
+        int ref = refString[i];
+        //DEBUG('A',"cur ref: %d\n",ref);
+        bool flag = false;
+        for(int j=0;j<maxInUse;j++){
+            if(opt[j] == ref){
+                flag = true;
+                break;
+            }
+        }
+        if(!flag){
+            ans++; // not in the mem
+            // still enough space?
+            if(optSize<maxInUse){
+                opt[optSize++] = ref;
+                continue;
+            }
+            // need paging,find victim
+            victim = 0;
+            max = 0;
+            for(int j=0;j<maxInUse;j++){
+                cmp = 0;
+                for(int k= i+1;k<refStrLen;k++){
+                    if(refString[k]!=opt[j]){
+                        cmp++;
+                    }else{
+                        break;
+                    }
+                }
+                if(cmp>max){
+                    max = cmp;
+                    victim = j;
+                }
+            }
+            // swap the victim and the vpn
+            opt[victim] = ref;
+        }
+    }
+    return ans;
+}
+#endif
+

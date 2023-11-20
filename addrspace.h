@@ -62,7 +62,24 @@ class AddrSpace {
      int stkSize;
      int numInUse;
 
+#ifdef OPT
+     /**
+      * Lab7:vmem extension
+      * record the ref string of user prog
+      */
+      int* refString;
+      int refStrLen;
+      int maxLen;
+      int lastVPN;
+
+      void updateRefStr(int refPage);
+
+     int calOPTPf();
+#endif
+
      void updateRefStk(int refPage);
+
+
 
   private:
     TranslationEntry *pageTable;	// Assume linear page table translation
