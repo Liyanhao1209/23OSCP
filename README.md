@@ -1,3 +1,5 @@
+# 声明
+本分支已经废弃。重构代码见于Lab2分支。
 # 23OSCP
 2023 SDU Operating System Curriculum
 
