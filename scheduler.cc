@@ -164,7 +164,7 @@ Scheduler::FindNextToRun (int status)
 #ifdef PRIORITY
         scheduler->ReadyToRun(loser);
 #else
-        scheduler->BackToTop(loser)
+        scheduler->BackToTop(loser);
 #endif
     }
     return nextThread;
